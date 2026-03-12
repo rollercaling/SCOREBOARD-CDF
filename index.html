@@ -15,6 +15,70 @@
       overflow:hidden;
     }
 
+
+.set-score.fanny-win{
+  animation:fannyWin 0.8s ease;
+  background:rgba(255,255,255,0.5);
+}
+
+.set-score.fanny-lose{
+  animation:fannyLose 0.8s ease;
+  background:rgba(255,80,80,0.45);
+}
+
+@keyframes fannyWin{
+  0%{ transform:scale(1); }
+  35%{ transform:scale(1.18); }
+  100%{ transform:scale(1); }
+}
+
+@keyframes fannyLose{
+  0%{ transform:translateX(0); }
+  20%{ transform:translateX(-4px); }
+  40%{ transform:translateX(4px); }
+  60%{ transform:translateX(-3px); }
+  80%{ transform:translateX(3px); }
+  100%{ transform:translateX(0); }
+}
+
+#fannyBadge{
+  position:absolute;
+  top:-46px;
+  right:0;
+  background:#d94b4b;
+  color:white;
+  font-weight:900;
+  font-size:18px;
+  padding:8px 14px;
+  border-radius:8px;
+  opacity:0;
+  transform:translateY(-8px);
+  pointer-events:none;
+}
+
+#fannyBadge.show{
+  animation:showFannyBadge 1.6s ease forwards;
+}
+
+@keyframes showFannyBadge{
+  0%{
+    opacity:0;
+    transform:translateY(-8px);
+  }
+  15%{
+    opacity:1;
+    transform:translateY(0);
+  }
+  80%{
+    opacity:1;
+    transform:translateY(0);
+  }
+  100%{
+    opacity:0;
+    transform:translateY(-8px);
+  }
+}
+
     #overlay{
       position:absolute;
       bottom:50px;
@@ -59,6 +123,23 @@
       display:inline-block;
       line-height:1;
     }
+
+
+#topRow{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+#specialPointBadge{
+  min-height:22px;
+  font-size:18px;
+  font-weight:900;
+  color:#ffd966;
+  letter-spacing:0.5px;
+  text-transform:uppercase;
+}
+
 
     #scoreboard{
       background:#3f3f3f;
@@ -211,11 +292,18 @@
 
   <div id="overlay">
     <div id="boardColumn">
+     <div id="fannyBadge">FANNY</div>
+
+<div id="topRow">
 
       <div id="roundBadge">
         <img id="roundLogo" src="Blason-Raptors-Blanc-Ville-1920x751.png" alt="Logo Raptors">
         <span id="roundBadgeText">FINALE</span>
       </div>
+
+   <div id="specialPointBadge"></div>
+
+</div>
 
       <div id="scoreboard">
         <div id="mainBoard">
@@ -296,9 +384,21 @@
       document.documentElement.style.setProperty("--name-col-width", finalWidth + "px");
     }
 
+
+const fannyBadgeEl = document.getElementById("fannyBadge");
+
+function showFannyBadge(){
+  if(!fannyBadgeEl) return;
+
+  fannyBadgeEl.classList.remove("show");
+  void fannyBadgeEl.offsetWidth;
+  fannyBadgeEl.classList.add("show");
+}
+
     function updateScores(){
       scoreAEl.innerText = scoreA;
       scoreBEl.innerText = scoreB;
+      updateSpecialPointBadge();
     }
 
     function flashScore(element){
@@ -330,6 +430,74 @@
         });
       }
     }
+
+
+const specialPointBadgeEl = document.getElementById("specialPointBadge");
+
+function updateSpecialPointBadge(){
+  if(!specialPointBadgeEl) return;
+
+  // Seulement en 5e manche
+  if(!isFinalSet()){
+    specialPointBadgeEl.innerText = "";
+    return;
+  }
+
+  // Si la manche est déjà gagnée, on ne montre plus rien
+  if(hasWonCurrentSet(scoreA, scoreB) || hasWonCurrentSet(scoreB, scoreA)){
+    specialPointBadgeEl.innerText = "";
+    return;
+  }
+
+  // Balle en or à 7-7
+  if(scoreA === 7 && scoreB === 7){
+    specialPointBadgeEl.innerText = "BALLE EN OR";
+    return;
+  }
+
+  // 2 points d'écart seulement si on est en zone d'écart
+  // et qu'aucun joueur n'a encore gagné la manche
+  if(scoreA >= 4 && scoreB >= 4){
+    specialPointBadgeEl.innerText = "2 POINTS D'ÉCART";
+    return;
+  }
+
+  specialPointBadgeEl.innerText = "";
+}
+
+function isFinalSet(){
+  return history.length === 4;
+}
+
+function isGoldenPoint(){
+  return isFinalSet() && scoreA === 7 && scoreB === 7 && !isMatchFinished();
+}
+
+function hasWonCurrentSet(playerScore, opponentScore){
+  // Manches 1 à 4 : premier à 5
+  if(!isFinalSet()){
+    return playerScore >= 5;
+  }
+
+  // 5e manche :
+  // avant 4-4, premier à 5 normalement
+  if(playerScore >= 5 && opponentScore <= 3){
+    return true; // ex : 5-0, 5-1, 5-2, 5-3
+  }
+
+  // à partir de 4-4, il faut 2 points d'écart
+  // sauf à 7-7 où le point suivant gagne
+  if(playerScore === 8 && opponentScore === 7){
+    return true; // balle en or gagnée
+  }
+
+  if(playerScore >= 6 && (playerScore - opponentScore) >= 2){
+    return true; // ex : 6-4, 7-5, 8-6
+  }
+
+  return false;
+}
+
 
     function updateHistory(){
       historyAEl.innerHTML = "";
@@ -376,6 +544,25 @@
     }
   }
 
+ // Cas FANNY / manche blanche
+    if(set.a === 5 && set.b === 0){
+      cellA.classList.add("fanny-win");
+      cellB.classList.add("fanny-lose");
+
+      if(i === history.length - 1){
+        showFannyBadge();
+      }
+    }
+
+    if(set.b === 5 && set.a === 0){
+      cellB.classList.add("fanny-win");
+      cellA.classList.add("fanny-lose");
+
+      if(i === history.length - 1){
+        showFannyBadge();
+      }
+    }
+
         if(i === history.length - 1 && set){
           cellA.classList.add("new");
           cellB.classList.add("new");
@@ -392,6 +579,7 @@
       scoreA = 0;
       scoreB = 0;
       updateScores();
+      updateSpecialPointBadge();
     }
 
     function resetMatch(){
@@ -402,6 +590,7 @@
       updateScores();
       updateHistory();
       updateScoreVisibility();
+      updateSpecialPointBadge();
     }
 
     function recordCurrentSet(){
@@ -446,31 +635,36 @@
       }
     }
 
-    function addGoalA(){
-      if(isMatchFinished()) return;
-      if(scoreA >= SCORE_MAX || scoreB >= SCORE_MAX) return;
+function addGoalA(){
+  if(isMatchFinished()) return;
 
-      scoreA++;
-      updateScores();
-      flashScore(scoreAEl);
+  // limite max réaliste de la belle
+  if(isFinalSet() && scoreA >= 8) return;
+  if(!isFinalSet() && scoreA >= 5) return;
 
-      if(scoreA >= SCORE_MAX){
-        winSetA();
-      }
-    }
+  scoreA++;
+  updateScores();
+  flashScore(scoreAEl);
 
-    function addGoalB(){
-      if(isMatchFinished()) return;
-      if(scoreA >= SCORE_MAX || scoreB >= SCORE_MAX) return;
+  if(hasWonCurrentSet(scoreA, scoreB)){
+    winSetA();
+  }
+}
 
-      scoreB++;
-      updateScores();
-      flashScore(scoreBEl);
+function addGoalB(){
+  if(isMatchFinished()) return;
 
-      if(scoreB >= SCORE_MAX){
-        winSetB();
-      }
-    }
+  if(isFinalSet() && scoreB >= 8) return;
+  if(!isFinalSet() && scoreB >= 5) return;
+
+  scoreB++;
+  updateScores();
+  flashScore(scoreBEl);
+
+  if(hasWonCurrentSet(scoreB, scoreA)){
+    winSetB();
+  }
+}
 
     function removeGoalA(){
       if(isMatchFinished()) return;
