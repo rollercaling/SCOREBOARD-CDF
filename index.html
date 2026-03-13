@@ -127,17 +127,54 @@
 
 #topRow{
   display:flex;
-  align-items:center;
+  align-items:flex-end;
   gap:14px;
+  position:relative;
+  overflow:visible;
 }
 
-#specialPointBadge{
-  min-height:22px;
-  font-size:18px;
+#specialPointBanner{
+  background:#bfbfbf;
+  color:#b22222;
+  font-size:16px;
   font-weight:900;
-  color:#ffd966;
-  letter-spacing:0.5px;
+  letter-spacing:0.6px;
   text-transform:uppercase;
+  padding:10px 16px;
+  border-radius:6px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.15);
+
+  opacity:0;
+  transform:translateY(28px);
+  pointer-events:none;
+}
+
+#specialPointBanner.show{
+  animation:specialBannerInOut 2.8s ease-in-out forwards;
+}
+
+#specialPointText{
+  display:block;
+  line-height:1;
+}
+
+@keyframes specialBannerInOut{
+  0%{
+    opacity:0;
+    transform:translateY(28px);
+  }
+  15%{
+    opacity:1;
+    transform:translateY(0);
+  }
+  80%{
+    opacity:1;
+    transform:translateY(0);
+  }
+  100%{
+    opacity:0;
+    transform:translateY(28px);
+  }
 }
 
 
@@ -301,7 +338,9 @@
         <span id="roundBadgeText">FINALE</span>
       </div>
 
-   <div id="specialPointBadge"></div>
+   <div id="specialPointBanner">
+    <span id="specialPointText"></span>
+  </div>
 
 </div>
 
@@ -356,6 +395,8 @@
     const roundBadgeTextEl = document.getElementById("roundBadgeText");
     const historyAEl = document.getElementById("historyA");
     const historyBEl = document.getElementById("historyB");
+    const specialPointBannerEl = document.getElementById("specialPointBanner");
+    const specialPointTextEl = document.getElementById("specialPointText");
 
     function initTexts(){
       nameAEl.innerText = playerAName;
@@ -387,6 +428,8 @@
 
 const fannyBadgeEl = document.getElementById("fannyBadge");
 
+
+
 function showFannyBadge(){
   if(!fannyBadgeEl) return;
 
@@ -394,6 +437,17 @@ function showFannyBadge(){
   void fannyBadgeEl.offsetWidth;
   fannyBadgeEl.classList.add("show");
 }
+
+function showSpecialPointBanner(text){
+  if(!specialPointBannerEl || !specialPointTextEl) return;
+
+  specialPointTextEl.innerText = text;
+
+  specialPointBannerEl.classList.remove("show");
+  void specialPointBannerEl.offsetWidth; // force reflow
+  specialPointBannerEl.classList.add("show");
+}
+
 
     function updateScores(){
       scoreAEl.innerText = scoreA;
@@ -434,37 +488,50 @@ function showFannyBadge(){
 
 const specialPointBadgeEl = document.getElementById("specialPointBadge");
 
+let lastSpecialState = "";
+
 function updateSpecialPointBadge(){
-  if(!specialPointBadgeEl) return;
+  if(!specialPointTextEl || !specialPointBannerEl) return;
 
-  // Seulement en 5e manche
-  if(!isFinalSet()){
-    specialPointBadgeEl.innerText = "";
-    return;
+  let newState = "";
+
+  // priorité 1 : balle en or
+  if(isFinalSet() && scoreA === 7 && scoreB === 7 && !isMatchFinished()){
+    newState = "BALLE EN OR";
   }
 
-  // Si la manche est déjà gagnée, on ne montre plus rien
-  if(hasWonCurrentSet(scoreA, scoreB) || hasWonCurrentSet(scoreB, scoreA)){
-    specialPointBadgeEl.innerText = "";
-    return;
+  // priorité 2 : 2 points d'écart
+  else if(
+    isFinalSet() &&
+    scoreA >= 4 &&
+    scoreB >= 4 &&
+    !hasWonCurrentSet(scoreA, scoreB) &&
+    !hasWonCurrentSet(scoreB, scoreA)
+  ){
+    newState = "2 POINTS D'ÉCART";
   }
 
-  // Balle en or à 7-7
-  if(scoreA === 7 && scoreB === 7){
-    specialPointBadgeEl.innerText = "BALLE EN OR";
-    return;
+  // priorité 3 : balle de match joueur A
+  else if(isMatchPointA()){
+    newState = "BALLE DE MATCH";
   }
 
-  // 2 points d'écart seulement si on est en zone d'écart
-  // et qu'aucun joueur n'a encore gagné la manche
-  if(scoreA >= 4 && scoreB >= 4){
-    specialPointBadgeEl.innerText = "2 POINTS D'ÉCART";
-    return;
+  // priorité 4 : balle de match joueur B
+  else if(isMatchPointB()){
+    newState = "BALLE DE MATCH";
   }
 
-  specialPointBadgeEl.innerText = "";
+  // si match fini, on coupe tout
+  if(isMatchFinished()){
+    newState = "";
+  }
+
+  if(newState !== "" && newState !== lastSpecialState){
+    showSpecialPointBanner(newState);
+  }
+
+  lastSpecialState = newState;
 }
-
 function isFinalSet(){
   return history.length === 4;
 }
@@ -579,18 +646,19 @@ function hasWonCurrentSet(playerScore, opponentScore){
       scoreA = 0;
       scoreB = 0;
       updateScores();
-      updateSpecialPointBadge();
+      lastSpecialState = "";
     }
 
     function resetMatch(){
       scoreA = 0;
       scoreB = 0;
       history = [];
+      lastSpecialState = "";
 
       updateScores();
       updateHistory();
       updateScoreVisibility();
-      updateSpecialPointBadge();
+      
     }
 
     function recordCurrentSet(){
@@ -621,6 +689,15 @@ function hasWonCurrentSet(playerScore, opponentScore){
         }, 350);
       }
     }
+
+function isMatchPointA(){
+  return getSetsWonA() === 2 && scoreA === 4 && !isMatchFinished();
+}
+
+function isMatchPointB(){
+  return getSetsWonB() === 2 && scoreB === 4 && !isMatchFinished();
+}
+
 
     function winSetB(){
       recordCurrentSet();
