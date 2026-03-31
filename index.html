@@ -2,10 +2,14 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Scoreboard Baby-Foot</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scoreboard Baby-Foot - prêt pour base de données</title>
   <style>
     :root{
       --name-col-width: 270px;
+      --score-col-width: 110px;
+      --separator-width: 3px;
+      --name-side-padding: 18px;
     }
 
     body{
@@ -13,71 +17,59 @@
       background:transparent;
       font-family:Arial, sans-serif;
       overflow:hidden;
+      color:white;
     }
 
+    .set-score.fanny-win{
+      animation:fannyWin 0.8s ease;
+      background:rgba(255,255,255,0.5);
+    }
 
-.set-score.fanny-win{
-  animation:fannyWin 0.8s ease;
-  background:rgba(255,255,255,0.5);
-}
+    .set-score.fanny-lose{
+      animation:fannyLose 0.8s ease;
+      background:rgba(255,80,80,0.45);
+    }
 
-.set-score.fanny-lose{
-  animation:fannyLose 0.8s ease;
-  background:rgba(255,80,80,0.45);
-}
+    @keyframes fannyWin{
+      0%{ transform:scale(1); }
+      35%{ transform:scale(1.18); }
+      100%{ transform:scale(1); }
+    }
 
-@keyframes fannyWin{
-  0%{ transform:scale(1); }
-  35%{ transform:scale(1.18); }
-  100%{ transform:scale(1); }
-}
+    @keyframes fannyLose{
+      0%{ transform:translateX(0); }
+      20%{ transform:translateX(-4px); }
+      40%{ transform:translateX(4px); }
+      60%{ transform:translateX(-3px); }
+      80%{ transform:translateX(3px); }
+      100%{ transform:translateX(0); }
+    }
 
-@keyframes fannyLose{
-  0%{ transform:translateX(0); }
-  20%{ transform:translateX(-4px); }
-  40%{ transform:translateX(4px); }
-  60%{ transform:translateX(-3px); }
-  80%{ transform:translateX(3px); }
-  100%{ transform:translateX(0); }
-}
+    #fannyBadge{
+      position:absolute;
+      top:-46px;
+      right:0;
+      background:#d94b4b;
+      color:white;
+      font-weight:900;
+      font-size:18px;
+      padding:8px 14px;
+      border-radius:8px;
+      opacity:0;
+      transform:translateY(-8px);
+      pointer-events:none;
+    }
 
-#fannyBadge{
-  position:absolute;
-  top:-46px;
-  right:0;
-  background:#d94b4b;
-  color:white;
-  font-weight:900;
-  font-size:18px;
-  padding:8px 14px;
-  border-radius:8px;
-  opacity:0;
-  transform:translateY(-8px);
-  pointer-events:none;
-}
+    #fannyBadge.show{
+      animation:showFannyBadge 1.6s ease forwards;
+    }
 
-#fannyBadge.show{
-  animation:showFannyBadge 1.6s ease forwards;
-}
-
-@keyframes showFannyBadge{
-  0%{
-    opacity:0;
-    transform:translateY(-8px);
-  }
-  15%{
-    opacity:1;
-    transform:translateY(0);
-  }
-  80%{
-    opacity:1;
-    transform:translateY(0);
-  }
-  100%{
-    opacity:0;
-    transform:translateY(-8px);
-  }
-}
+    @keyframes showFannyBadge{
+      0%{ opacity:0; transform:translateY(-8px); }
+      15%{ opacity:1; transform:translateY(0); }
+      80%{ opacity:1; transform:translateY(0); }
+      100%{ opacity:0; transform:translateY(-8px); }
+    }
 
     #overlay{
       position:absolute;
@@ -92,7 +84,10 @@
       display:flex;
       flex-direction:column;
       align-items:flex-start;
-      gap:8px;
+      gap:0;
+      min-width:650px;
+      width:fit-content;
+      position:relative;
     }
 
     #roundBadge{
@@ -101,6 +96,8 @@
       justify-content:flex-start;
       gap:10px;
       height:60px;
+      width:max-content;
+      min-width:300px;
       padding:0 14px 0 10px;
       background:#9a9a9a;
       color:#111;
@@ -110,6 +107,8 @@
       letter-spacing:0.6px;
       text-transform:uppercase;
       box-shadow:0 4px 10px rgba(0,0,0,0.18);
+      box-sizing:border-box;
+      overflow:visible;
     }
 
     #roundLogo{
@@ -120,63 +119,63 @@
     }
 
     #roundBadgeText{
-      display:inline-block;
+      display:block;
+      line-height:1;
+      flex:0 0 auto;
+      white-space:nowrap;
+    }
+
+    #topRow{
+      display:flex;
+      align-items:stretch;
+      justify-content:space-between;
+      gap:10px;
+      position:relative;
+      overflow:visible;
+      box-sizing:border-box;
+      width:100%;
+      margin:0;
+      padding:0;
+    }
+
+    #specialPointBanner{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      align-self:stretch;
+      min-height:50px;
+      background:#bfbfbf;
+      color:#b22222;
+      font-size:16px;
+      font-weight:900;
+      letter-spacing:0.6px;
+      text-transform:uppercase;
+      padding:0 5px;
+      border-radius:6px;
+      box-shadow:0 4px 5px rgba(0,0,0,0.15);
+      opacity:0;
+      visibility:hidden;
+      pointer-events:none;
+      white-space:nowrap;
+      box-sizing:border-box;
+    }
+
+    #specialPointBanner.show{
+      visibility:visible;
+      animation:specialBannerInOut 2.8s ease-in-out forwards;
+    }
+
+    #specialPointText{
+      display:block;
       line-height:1;
     }
 
-
-#topRow{
-  display:flex;
-  align-items:flex-end;
-  gap:14px;
-  position:relative;
-  overflow:visible;
-}
-
-#specialPointBanner{
-  background:#bfbfbf;
-  color:#b22222;
-  font-size:16px;
-  font-weight:900;
-  letter-spacing:0.6px;
-  text-transform:uppercase;
-  padding:10px 16px;
-  border-radius:6px;
-  box-shadow:0 4px 10px rgba(0,0,0,0.15);
-
-  opacity:0;
-  transform:translateY(28px);
-  pointer-events:none;
-}
-
-#specialPointBanner.show{
-  animation:specialBannerInOut 2.8s ease-in-out forwards;
-}
-
-#specialPointText{
-  display:block;
-  line-height:1;
-}
-
-@keyframes specialBannerInOut{
-  0%{
-    opacity:0;
-    transform:translateY(28px);
-  }
-  15%{
-    opacity:1;
-    transform:translateY(0);
-  }
-  80%{
-    opacity:1;
-    transform:translateY(0);
-  }
-  100%{
-    opacity:0;
-    transform:translateY(28px);
-  }
-}
-
+    @keyframes specialBannerInOut{
+      0%{ opacity:0; transform:translateY(-8px); }
+      15%{ opacity:1; transform:translateY(0); }
+      80%{ opacity:1; transform:translateY(0); }
+      100%{ opacity:0; transform:translateY(-8px); }
+    }
 
     #scoreboard{
       background:#3f3f3f;
@@ -185,9 +184,10 @@
       padding:10px 14px;
       box-shadow:0 10px 28px rgba(0,0,0,0.30);
       width:auto;
-      min-width:650px;
+      min-width:700px;
       box-sizing:border-box;
       display:inline-block;
+      margin-top:0;
     }
 
     #mainBoard{
@@ -197,24 +197,18 @@
 
     .player-row{
       display:grid;
-      grid-template-columns: var(--name-col-width) 110px auto;
+      grid-template-columns: var(--name-col-width) var(--separator-width) var(--score-col-width) auto;
       align-items:stretch;
       min-height:62px;
     }
 
     .player-row.match-finished{
-      grid-template-columns: var(--name-col-width) auto;
+      grid-template-columns: var(--name-col-width) var(--separator-width) 1fr;
     }
 
-.player-row.match-finished .sets-history-row{
-  padding-left:20px;
-  margin-left:0;
-  border-left:3px solid #111;
-}
-
-.set-score.won{
-  background:rgba(255,255,255,0.40);
-}
+    .set-score.won{
+      background:rgba(255,255,255,0.40);
+    }
 
     .player-row + .player-row{
       border-top:3px solid #111;
@@ -223,11 +217,12 @@
     }
 
     .player-name-wrap{
-      padding:0 14px 0 4px;
+      padding:0 var(--name-side-padding) 0 4px;
       display:flex;
       align-items:center;
       min-height:56px;
       box-sizing:border-box;
+      width:100%;
     }
 
     .player-name{
@@ -236,9 +231,22 @@
       letter-spacing:1px;
       text-transform:uppercase;
       white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      width:100%;
+      display:inline-block;
+      width:max-content;
+      max-width:none;
+    }
+
+    
+    .name-score-separator{
+      width:var(--separator-width);
+      background:#111;
+      min-height:56px;
+      align-self:stretch;
+    }
+
+    .player-row.match-finished .name-score-separator{
+      display:block;
+      grid-column:2;
     }
 
     .player-score-wrap{
@@ -246,11 +254,13 @@
       align-items:center;
       justify-content:center;
       min-height:56px;
-      border-left:3px solid #111;
       box-sizing:border-box;
-      width:110px;
-      flex:0 0 110px;
+      width:var(--score-col-width);
+      min-width:var(--score-col-width);
+      flex:0 0 var(--score-col-width);
+      overflow:visible;
     }
+
 
     .player-row.match-finished .player-score-wrap{
       display:none;
@@ -275,6 +285,7 @@
 
     .score-text-hidden{
       opacity:0;
+      pointer-events:none;
     }
 
     .sets-history-row{
@@ -286,10 +297,15 @@
       min-height:56px;
       box-sizing:border-box;
       transition:padding-left 0.25s ease;
+      overflow:visible;
+      margin-left: 10px;
     }
 
     .player-row.match-finished .sets-history-row{
-      padding-left:20px;
+      grid-column:3;
+      justify-content:center;
+      padding-left:0;
+      width:100%;
     }
 
     .set-score{
@@ -314,35 +330,218 @@
     }
 
     @keyframes appearSet{
-      0%{
-        opacity:0;
-        transform:translateX(-20px);
+      0%{ opacity:0; transform:translateX(-20px); }
+      100%{ opacity:1; transform:translateX(0); }
+    }
+
+    #controlPanel{
+      position:fixed;
+      top:16px;
+      right:16px;
+      width:min(360px, calc(100vw - 32px));
+      background:rgba(21,21,21,0.96);
+      color:white;
+      border:1px solid rgba(255,255,255,0.12);
+      border-radius:16px;
+      padding:14px;
+      box-shadow:0 12px 32px rgba(0,0,0,0.35);
+      z-index:50;
+      backdrop-filter:blur(8px);
+      overflow:auto;
+      max-height:calc(100vh - 32px);
+    }
+
+    #controlPanel h2{
+      margin:0 0 10px;
+      font-size:18px;
+    }
+
+    .panel-section{
+      margin-top:12px;
+      padding-top:12px;
+      border-top:1px solid rgba(255,255,255,0.10);
+    }
+
+    .field-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+
+    .field.full{
+      grid-column:1 / -1;
+    }
+
+    label{
+      font-size:12px;
+      text-transform:uppercase;
+      opacity:0.8;
+      letter-spacing:0.5px;
+    }
+
+    input{
+      width:100%;
+      box-sizing:border-box;
+      border:none;
+      border-radius:10px;
+      padding:11px 12px;
+      font-size:14px;
+      background:#f1f1f1;
+      color:#111;
+    }
+
+    .button-row{
+      display:grid;
+      grid-template-columns:repeat(2, 1fr);
+      gap:10px;
+      margin-top:10px;
+    }
+
+    button{
+      border:none;
+      border-radius:12px;
+      padding:12px 14px;
+      font-size:14px;
+      font-weight:700;
+      cursor:pointer;
+    }
+
+    button.primary{ background:#ffffff; color:#111; }
+    button.secondary{ background:#6a6a6a; color:white; }
+    button.danger{ background:#b43b3b; color:white; }
+    button.success{ background:#1d8d54; color:white; }
+
+    #statusText{
+      margin-top:10px;
+      font-size:13px;
+      min-height:18px;
+      opacity:0.9;
+    }
+
+    #matchMeta{
+      margin-top:8px;
+      font-size:12px;
+      line-height:1.5;
+      opacity:0.84;
+    }
+
+    #goalPreview{
+      margin-top:8px;
+      max-height:130px;
+      overflow:auto;
+      background:rgba(255,255,255,0.06);
+      border-radius:10px;
+      padding:8px 10px;
+      font-size:12px;
+      line-height:1.5;
+    }
+
+    #goalPreview div + div{ margin-top:4px; }
+
+    @media (max-width: 900px){
+      body{ overflow:auto; background:#111; }
+      #overlay{
+        position:relative;
+        left:auto;
+        bottom:auto;
+        transform:none;
+        padding:220px 16px 16px;
+        justify-content:center;
       }
-      100%{
-        opacity:1;
-        transform:translateX(0);
-      }
+      #scoreboard{ min-width:unset; width:100%; }
+      #boardColumn{ width:min(100%, 760px); min-width:unset; }
+      #topRow{ width:100%; gap:8px; }
+      #roundBadge{ min-width:unset; max-width:100%; width:auto; flex:1 1 auto; }
+      #roundBadgeText{ overflow:hidden; text-overflow:ellipsis; }
+      #specialPointBanner{ min-height:60px; max-width:45%; }
+      .player-name{ font-size:22px; }
+      .player-score{ font-size:54px; }
+      .set-score{ width:54px; font-size:24px; }
     }
   </style>
 </head>
 <body>
+  <aside id="controlPanel">
+    <h2>Scoreboard - données match</h2>
+
+    <div class="field-grid">
+      <div class="field full">
+        <label for="tournamentNameInput">Tournoi</label>
+        <input id="tournamentNameInput" type="text" value="Tournoi du club" />
+      </div>
+      <div class="field">
+        <label for="categoryNameInput">Catégorie</label>
+        <input id="categoryNameInput" type="text" value="Open Simple" />
+      </div>
+      <div class="field">
+        <label for="roundLabelInput">Tour</label>
+        <input id="roundLabelInput" type="text" value="Finale" />
+      </div>
+      <div class="field">
+        <label for="playerAInput">Joueur A</label>
+        <input id="playerAInput" type="text" value="TOURMANTE.A" />
+      </div>
+      <div class="field">
+        <label for="playerBInput">Joueur B</label>
+        <input id="playerBInput" type="text" value="DROIT.T" />
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="button-row">
+        <button id="saveMatchBtn" class="success">Sauvegarder résultat</button>
+        <button id="exportCurrentBtn" class="primary">Exporter le match</button>
+        <button id="undoGoalBtn" class="secondary">Annuler dernier but</button>
+        <button id="resetMatchBtn" class="danger">Reset match</button>
+      </div>
+      <div id="statusText"></div>
+      <div id="matchMeta"></div>
+    </div>
+
+
+
+    <div class="panel-section">
+      <div><strong>Firebase / Firestore</strong></div>
+      <div class="field-grid" style="margin-top:10px;">
+        <div class="field full">
+          <label for="firebaseProjectIdInput">Project ID Firebase</label>
+          <input id="firebaseProjectIdInput" type="text" value="" placeholder="mon-projet-firebase" />
+        </div>
+      </div>
+      <div class="button-row">
+        <button id="initFirebaseBtn" class="primary">Initialiser Firebase</button>
+        <button id="testFirestoreBtn" class="secondary">Tester Firestore</button>
+      </div>
+      <div id="firebaseStatusText" style="margin-top:10px;font-size:13px;opacity:0.9;line-height:1.5;"></div>
+    </div>
+
+
+    <div class="panel-section">
+      <div><strong>Aperçu des buts enregistrés</strong></div>
+      <div id="goalPreview"></div>
+    </div>
+  </aside>
 
   <div id="overlay">
     <div id="boardColumn">
-     <div id="fannyBadge">FANNY</div>
+      <div id="fannyBadge">FANNY</div>
 
-<div id="topRow">
+      <div id="topRow">
+        <div id="roundBadge">
+          <img id="roundLogo" src="Blason-Raptors-Blanc-Ville-1920x751.png" alt="Logo Raptors">
+          <span id="roundBadgeText">TOURNOI DU CLUB - OPEN SIMPLE - FINALE</span>
+        </div>
 
-      <div id="roundBadge">
-        <img id="roundLogo" src="Blason-Raptors-Blanc-Ville-1920x751.png" alt="Logo Raptors">
-        <span id="roundBadgeText">FINALE</span>
+        <div id="specialPointBanner">
+          <span id="specialPointText"></span>
+        </div>
       </div>
-
-   <div id="specialPointBanner">
-    <span id="specialPointText"></span>
-  </div>
-
-</div>
 
       <div id="scoreboard">
         <div id="mainBoard">
@@ -350,6 +549,8 @@
             <div class="player-name-wrap">
               <div id="nameA" class="player-name">JOUEUR A</div>
             </div>
+
+            <div class="name-score-separator"></div>
 
             <div class="player-score-wrap">
               <div id="scoreA" class="player-score">0</div>
@@ -363,6 +564,8 @@
               <div id="nameB" class="player-name">JOUEUR B</div>
             </div>
 
+            <div class="name-score-separator"></div>
+
             <div class="player-score-wrap">
               <div id="scoreB" class="player-score">0</div>
             </div>
@@ -371,22 +574,17 @@
           </div>
         </div>
       </div>
-
     </div>
   </div>
 
   <script>
-    const SCORE_MAX = 5;
+    const SCORE_NORMAL = 5;
+    const SCORE_FINAL_SET_MAX = 8;
     const MANCHES_MAX = 5;
     const MANCHES_POUR_GAGNER = 3;
-
-    let playerAName = "TOURMANTE.A";
-    let playerBName = "DROIT.T";
-    let roundLabel = "CDF INDIV - OPEN SIMPLE - FINAL";
-
-    let scoreA = 0;
-    let scoreB = 0;
-    let history = [];
+    const LOCAL_CURRENT_MATCH_KEY = "babyfoot_current_match_v2";
+    const LOCAL_SAVED_MATCHES_KEY = "babyfoot_saved_matches_v2";
+    const LOCAL_FIREBASE_PROJECT_ID_KEY = "babyfoot_firebase_project_id_v1";
 
     const scoreAEl = document.getElementById("scoreA");
     const scoreBEl = document.getElementById("scoreB");
@@ -396,70 +594,345 @@
     const historyAEl = document.getElementById("historyA");
     const historyBEl = document.getElementById("historyB");
     const specialPointBannerEl = document.getElementById("specialPointBanner");
+    const scoreboardEl = document.getElementById("scoreboard");
+    const boardColumnEl = document.getElementById("boardColumn");
+    const topRowEl = document.getElementById("topRow");
+    const roundBadgeEl = document.getElementById("roundBadge");
     const specialPointTextEl = document.getElementById("specialPointText");
+    const fannyBadgeEl = document.getElementById("fannyBadge");
 
-    function initTexts(){
-      nameAEl.innerText = playerAName;
-      nameBEl.innerText = playerBName;
-      roundBadgeTextEl.innerText = roundLabel;
+    const tournamentNameInput = document.getElementById("tournamentNameInput");
+    const categoryNameInput = document.getElementById("categoryNameInput");
+    const roundLabelInput = document.getElementById("roundLabelInput");
+    const playerAInput = document.getElementById("playerAInput");
+    const playerBInput = document.getElementById("playerBInput");
+    const saveMatchBtn = document.getElementById("saveMatchBtn");
+    const exportCurrentBtn = document.getElementById("exportCurrentBtn");
+    const undoGoalBtn = document.getElementById("undoGoalBtn");
+    const resetMatchBtn = document.getElementById("resetMatchBtn");
+    const statusTextEl = document.getElementById("statusText");
+    const matchMetaEl = document.getElementById("matchMeta");
+    const goalPreviewEl = document.getElementById("goalPreview");
+    const firebaseProjectIdInput = document.getElementById("firebaseProjectIdInput");
+    const initFirebaseBtn = document.getElementById("initFirebaseBtn");
+    const testFirestoreBtn = document.getElementById("testFirestoreBtn");
+    const firebaseStatusTextEl = document.getElementById("firebaseStatusText");
+
+    let lastSpecialState = "";
+    let currentMatch = createEmptyMatch();
+    let firebaseApp = null;
+    let firestoreDb = null;
+    let firestoreFns = null;
+
+
+    function setFirebaseStatus(text, isError = false){
+      firebaseStatusTextEl.textContent = text;
+      firebaseStatusTextEl.style.color = isError ? "#ff8f8f" : "white";
+    }
+
+    function getFirebaseConfig(){
+      const projectId = (firebaseProjectIdInput.value || "").trim();
+      if(!projectId){
+        throw new Error("Renseigne d'abord le Project ID Firebase.");
+      }
+
+      return {
+        apiKey: "AIzaSyDaxmq1InTn2hw-Zn0vP9VCQcNT_C2DWfY",
+        authDomain: "donnees-scoreboard.firebaseapp.com",
+        projectId: "donnees-scoreboard",
+        storageBucket: "donnees-scoreboard.firebasestorage.app",
+        messagingSenderId: "135990680324",
+        appId: "1:135990680324:web:3a3004df845276cb74ce51",
+      };
+    }
+
+    function isFirebaseConfigured(config){
+      return Boolean(config.apiKey && !config.apiKey.includes("REMPLACE") && config.messagingSenderId && !config.messagingSenderId.includes("REMPLACE") && config.appId && !config.appId.includes("REMPLACE") && config.projectId);
+    }
+
+    async function initFirebase(){
+      try{
+        const config = getFirebaseConfig();
+        localStorage.setItem(LOCAL_FIREBASE_PROJECT_ID_KEY, config.projectId);
+
+        if(!isFirebaseConfigured(config)){
+          setFirebaseStatus("Firebase non initialisé : complète apiKey, messagingSenderId et appId dans getFirebaseConfig().", true);
+          return false;
+        }
+
+        if(firebaseApp && firestoreDb && firestoreFns){
+          setFirebaseStatus(`Firebase déjà prêt sur ${config.projectId}.`);
+          return true;
+        }
+
+        const [{ initializeApp }, firestoreModule] = await Promise.all([
+          import('https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js'),
+          import('https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js')
+        ]);
+
+        firebaseApp = initializeApp(config);
+        firestoreDb = firestoreModule.getFirestore(firebaseApp);
+        firestoreFns = firestoreModule;
+        setFirebaseStatus(`Firebase connecté sur ${config.projectId}.`);
+        return true;
+      } catch(error){
+        console.error(error);
+        setFirebaseStatus(`Erreur Firebase : ${error.message}`, true);
+        return false;
+      }
+    }
+
+    async function testFirestoreConnection(){
+      const ready = await initFirebase();
+      if(!ready) return;
+
+      try{
+        const { doc, setDoc, serverTimestamp } = firestoreFns;
+        const testRef = doc(firestoreDb, '_connection_tests', 'scoreboard_test');
+        await setDoc(testRef, {
+          updatedAt: serverTimestamp(),
+          source: 'scoreboard_html'
+        }, { merge: true });
+        setFirebaseStatus('Test Firestore OK : écriture de test réussie.');
+      } catch(error){
+        console.error(error);
+        setFirebaseStatus(`Test Firestore échoué : ${error.message}`, true);
+      }
+    }
+
+    async function saveMatchToFirebase(payload){
+      const ready = await initFirebase();
+      if(!ready){
+        throw new Error("Firebase n'est pas initialisé.");
+      }
+
+      const { doc, collection, writeBatch, serverTimestamp } = firestoreFns;
+      const tournamentRef = doc(firestoreDb, 'tournaments', payload.tournamentId);
+      const categoryRef = doc(tournamentRef, 'categories', payload.categoryId);
+      const matchRef = doc(categoryRef, 'matches', payload.id);
+
+      const batch = writeBatch(firestoreDb);
+
+      batch.set(tournamentRef, {
+        id: payload.tournamentId,
+        name: payload.tournamentName,
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+
+      batch.set(categoryRef, {
+        id: payload.categoryId,
+        name: payload.categoryName,
+        tournamentId: payload.tournamentId,
+        tournamentName: payload.tournamentName,
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+
+      batch.set(matchRef, {
+        id: payload.id,
+        tournamentId: payload.tournamentId,
+        tournamentName: payload.tournamentName,
+        categoryId: payload.categoryId,
+        categoryName: payload.categoryName,
+        roundLabel: payload.roundLabel,
+        teamA: payload.teamA,
+        teamB: payload.teamB,
+        scoreA: payload.scoreA,
+        scoreB: payload.scoreB,
+        sets: payload.sets,
+        goalsCount: payload.goalsCount,
+        setsWonA: payload.setsWonA,
+        setsWonB: payload.setsWonB,
+        winner: payload.winner,
+        goalDifference: payload.goalDifference,
+        status: payload.status,
+        startedAt: payload.startedAt,
+        finishedAt: payload.finishedAt,
+        savedAt: payload.savedAt,
+        firestoreSavedAt: serverTimestamp()
+      });
+
+      payload.goals.forEach((goal) => {
+        const goalRef = doc(collection(matchRef, 'goals'), goal.id);
+        batch.set(goalRef, goal);
+      });
+
+      await batch.commit();
+    }
+
+    function createId(prefix){
+      return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    }
+
+    function createEmptyMatch(){
+      return {
+        id: createId("match"),
+        tournamentId: "tournoi_du_club",
+        tournamentName: "Tournoi du club",
+        categoryId: "open_simple",
+        categoryName: "Open Simple",
+        roundLabel: "Finale",
+        teamA: {
+          name: "TOURMANTE.A",
+          players: ["TOURMANTE.A"]
+        },
+        teamB: {
+          name: "DROIT.T",
+          players: ["DROIT.T"]
+        },
+        scoreA: 0,
+        scoreB: 0,
+        sets: [],
+        goals: [],
+        status: "in_progress",
+        startedAt: new Date().toISOString(),
+        finishedAt: null,
+        savedAt: null
+      };
+    }
+
+    function slugify(value){
+      return (value || "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, "_")
+        .replace(/^_+|_+$/g, "") || "non_defini";
+    }
+
+    function syncInputsFromMatch(){
+      tournamentNameInput.value = currentMatch.tournamentName;
+      categoryNameInput.value = currentMatch.categoryName;
+      roundLabelInput.value = currentMatch.roundLabel;
+      playerAInput.value = currentMatch.teamA.name;
+      playerBInput.value = currentMatch.teamB.name;
+    }
+
+    function syncMatchMetaFromInputs(){
+      currentMatch.tournamentName = tournamentNameInput.value.trim() || "Tournoi sans nom";
+      currentMatch.categoryName = categoryNameInput.value.trim() || "Catégorie sans nom";
+      currentMatch.roundLabel = roundLabelInput.value.trim() || "Tour non défini";
+      currentMatch.teamA.name = playerAInput.value.trim() || "JOUEUR A";
+      currentMatch.teamA.players = [currentMatch.teamA.name];
+      currentMatch.teamB.name = playerBInput.value.trim() || "JOUEUR B";
+      currentMatch.teamB.players = [currentMatch.teamB.name];
+      currentMatch.tournamentId = slugify(currentMatch.tournamentName);
+      currentMatch.categoryId = slugify(currentMatch.categoryName);
     }
 
     function getSetsWonA(){
-      return history.filter(set => set.a > set.b).length;
+      return currentMatch.sets.filter(set => set.a > set.b).length;
     }
 
     function getSetsWonB(){
-      return history.filter(set => set.b > set.a).length;
+      return currentMatch.sets.filter(set => set.b > set.a).length;
     }
 
     function isMatchFinished(){
       return getSetsWonA() >= MANCHES_POUR_GAGNER || getSetsWonB() >= MANCHES_POUR_GAGNER;
     }
 
-    function updateNameColumnWidth(){
-      const widthA = nameAEl.scrollWidth;
-      const widthB = nameBEl.scrollWidth;
-      const longest = Math.max(widthA, widthB);
-      const finalWidth = longest + 24;
-
-      document.documentElement.style.setProperty("--name-col-width", finalWidth + "px");
+    function isFinalSet(){
+      return currentMatch.sets.length === 4;
     }
 
+    function hasWonCurrentSet(playerScore, opponentScore){
+      if(!isFinalSet()){
+        return playerScore >= SCORE_NORMAL;
+      }
+      if(playerScore >= 5 && opponentScore <= 3){
+        return true;
+      }
+      if(playerScore === 8 && opponentScore === 7){
+        return true;
+      }
+      if(playerScore >= 6 && (playerScore - opponentScore) >= 2){
+        return true;
+      }
+      return false;
+    }
 
-const fannyBadgeEl = document.getElementById("fannyBadge");
+    function isMatchPointA(){
+      return getSetsWonA() === 2 && currentMatch.scoreA === 4 && !isMatchFinished();
+    }
 
+    function isMatchPointB(){
+      return getSetsWonB() === 2 && currentMatch.scoreB === 4 && !isMatchFinished();
+    }
 
+    function updateNameColumnWidth(){
+      const widthA = Math.ceil(nameAEl.scrollWidth);
+      const widthB = Math.ceil(nameBEl.scrollWidth);
+      const longest = Math.max(widthA, widthB);
+      const rootStyles = getComputedStyle(document.documentElement);
+      const sidePadding = parseFloat(rootStyles.getPropertyValue("--name-side-padding")) || 18;
+      const finalWidth = longest + sidePadding + 8;
+      document.documentElement.style.setProperty("--name-col-width", `${finalWidth}px`);
+    }
 
-function showFannyBadge(){
-  if(!fannyBadgeEl) return;
+    function syncBoardWidth(){
+      requestAnimationFrame(() => {
+        const width = Math.ceil(scoreboardEl.getBoundingClientRect().width);
+        if(width > 0){
+          topRowEl.style.width = `${width}px`;
+        }
+        roundBadgeEl.style.width = "auto";
+      });
+    }
 
-  fannyBadgeEl.classList.remove("show");
-  void fannyBadgeEl.offsetWidth;
-  fannyBadgeEl.classList.add("show");
-}
+    function showFannyBadge(){
+      fannyBadgeEl.classList.remove("show");
+      void fannyBadgeEl.offsetWidth;
+      fannyBadgeEl.classList.add("show");
+    }
 
-function showSpecialPointBanner(text){
-  if(!specialPointBannerEl || !specialPointTextEl) return;
+    function showSpecialPointBanner(text){
+      specialPointTextEl.innerText = text;
+      specialPointBannerEl.classList.remove("show");
+      void specialPointBannerEl.offsetWidth;
+      specialPointBannerEl.classList.add("show");
+    }
 
-  specialPointTextEl.innerText = text;
+    function updateSpecialPointBadge(){
+      let newState = "";
 
-  specialPointBannerEl.classList.remove("show");
-  void specialPointBannerEl.offsetWidth; // force reflow
-  specialPointBannerEl.classList.add("show");
-}
+      if(isFinalSet() && currentMatch.scoreA === 7 && currentMatch.scoreB === 7 && !isMatchFinished()){
+        newState = "BALLE EN OR";
+      } else if(
+        isFinalSet() &&
+        currentMatch.scoreA >= 4 &&
+        currentMatch.scoreB >= 4 &&
+        !hasWonCurrentSet(currentMatch.scoreA, currentMatch.scoreB) &&
+        !hasWonCurrentSet(currentMatch.scoreB, currentMatch.scoreA)
+      ){
+        newState = "2 POINTS D'ÉCART";
+      } else if(isMatchPointA() || isMatchPointB()){
+        newState = "BALLE DE MATCH";
+      }
 
+      if(isMatchFinished()){
+        newState = "";
+      }
+
+      if(newState !== "" && newState !== lastSpecialState){
+        showSpecialPointBanner(newState);
+      }
+      if(newState === ""){
+        specialPointBannerEl.classList.remove("show");
+      }
+      lastSpecialState = newState;
+    }
 
     function updateScores(){
-      scoreAEl.innerText = scoreA;
-      scoreBEl.innerText = scoreB;
+      scoreAEl.innerText = currentMatch.scoreA;
+      scoreBEl.innerText = currentMatch.scoreB;
       updateSpecialPointBadge();
+      updateMetaPanel();
+      updateGoalPreview();
     }
 
     function flashScore(element){
       element.classList.add("flash");
-      setTimeout(() => {
-        element.classList.remove("flash");
-      }, 180);
+      setTimeout(() => element.classList.remove("flash"), 180);
     }
 
     function updateScoreVisibility(){
@@ -467,104 +940,13 @@ function showSpecialPointBanner(text){
       const playerRows = document.querySelectorAll(".player-row");
 
       if(isMatchFinished()){
-        scoreEls.forEach(el => {
-          el.classList.add("score-text-hidden");
-        });
-
-        playerRows.forEach(row => {
-          row.classList.add("match-finished");
-        });
+        scoreEls.forEach(el => el.classList.add("score-text-hidden"));
+        playerRows.forEach(row => row.classList.add("match-finished"));
       } else {
-        scoreEls.forEach(el => {
-          el.classList.remove("score-text-hidden");
-        });
-
-        playerRows.forEach(row => {
-          row.classList.remove("match-finished");
-        });
+        scoreEls.forEach(el => el.classList.remove("score-text-hidden"));
+        playerRows.forEach(row => row.classList.remove("match-finished"));
       }
     }
-
-
-const specialPointBadgeEl = document.getElementById("specialPointBadge");
-
-let lastSpecialState = "";
-
-function updateSpecialPointBadge(){
-  if(!specialPointTextEl || !specialPointBannerEl) return;
-
-  let newState = "";
-
-  // priorité 1 : balle en or
-  if(isFinalSet() && scoreA === 7 && scoreB === 7 && !isMatchFinished()){
-    newState = "BALLE EN OR";
-  }
-
-  // priorité 2 : 2 points d'écart
-  else if(
-    isFinalSet() &&
-    scoreA >= 4 &&
-    scoreB >= 4 &&
-    !hasWonCurrentSet(scoreA, scoreB) &&
-    !hasWonCurrentSet(scoreB, scoreA)
-  ){
-    newState = "2 POINTS D'ÉCART";
-  }
-
-  // priorité 3 : balle de match joueur A
-  else if(isMatchPointA()){
-    newState = "BALLE DE MATCH";
-  }
-
-  // priorité 4 : balle de match joueur B
-  else if(isMatchPointB()){
-    newState = "BALLE DE MATCH";
-  }
-
-  // si match fini, on coupe tout
-  if(isMatchFinished()){
-    newState = "";
-  }
-
-  if(newState !== "" && newState !== lastSpecialState){
-    showSpecialPointBanner(newState);
-  }
-
-  lastSpecialState = newState;
-}
-function isFinalSet(){
-  return history.length === 4;
-}
-
-function isGoldenPoint(){
-  return isFinalSet() && scoreA === 7 && scoreB === 7 && !isMatchFinished();
-}
-
-function hasWonCurrentSet(playerScore, opponentScore){
-  // Manches 1 à 4 : premier à 5
-  if(!isFinalSet()){
-    return playerScore >= 5;
-  }
-
-  // 5e manche :
-  // avant 4-4, premier à 5 normalement
-  if(playerScore >= 5 && opponentScore <= 3){
-    return true; // ex : 5-0, 5-1, 5-2, 5-3
-  }
-
-  // à partir de 4-4, il faut 2 points d'écart
-  // sauf à 7-7 où le point suivant gagne
-  if(playerScore === 8 && opponentScore === 7){
-    return true; // balle en or gagnée
-  }
-
-  if(playerScore >= 6 && (playerScore - opponentScore) >= 2){
-    return true; // ex : 6-4, 7-5, 8-6
-  }
-
-  return false;
-}
-
 
     function updateHistory(){
       historyAEl.innerHTML = "";
@@ -572,65 +954,46 @@ function hasWonCurrentSet(playerScore, opponentScore){
 
       const setsWonA = getSetsWonA();
       const setsWonB = getSetsWonB();
-
-      let displayedSets = history.length;
-
-      if(history.length === 0){
-        displayedSets = 0;
-      }
+      let displayedSets = currentMatch.sets.length;
 
       if(setsWonA >= MANCHES_POUR_GAGNER || setsWonB >= MANCHES_POUR_GAGNER){
         displayedSets = setsWonA + setsWonB;
       }
 
-      if(displayedSets > 0){
-        historyAEl.style.gridTemplateColumns = `repeat(${displayedSets}, 66px)`;
-        historyBEl.style.gridTemplateColumns = `repeat(${displayedSets}, 66px)`;
-      } else {
-        historyAEl.style.gridTemplateColumns = "none";
-        historyBEl.style.gridTemplateColumns = "none";
-      }
+      historyAEl.style.gridTemplateColumns = displayedSets > 0 ? `repeat(${displayedSets}, 66px)` : "none";
+      historyBEl.style.gridTemplateColumns = displayedSets > 0 ? `repeat(${displayedSets}, 66px)` : "none";
 
       for(let i = 0; i < displayedSets; i++){
-        const set = history[i];
-
+        const set = currentMatch.sets[i];
         const cellA = document.createElement("div");
         const cellB = document.createElement("div");
 
         cellA.className = "set-score";
         cellB.className = "set-score";
-
         cellA.innerText = set ? set.a : "";
         cellB.innerText = set ? set.b : "";
-		
-		if(set){
-    if(set.a > set.b){
-      cellA.classList.add("won");
-    } else if(set.b > set.a){
-      cellB.classList.add("won");
-    }
-  }
 
- // Cas FANNY / manche blanche
-    if(set.a === 5 && set.b === 0){
-      cellA.classList.add("fanny-win");
-      cellB.classList.add("fanny-lose");
+        if(set){
+          if(set.a > set.b){
+            cellA.classList.add("won");
+          } else if(set.b > set.a){
+            cellB.classList.add("won");
+          }
 
-      if(i === history.length - 1){
-        showFannyBadge();
-      }
-    }
+          if(set.a === 5 && set.b === 0){
+            cellA.classList.add("fanny-win");
+            cellB.classList.add("fanny-lose");
+            if(i === currentMatch.sets.length - 1) showFannyBadge();
+          }
 
-    if(set.b === 5 && set.a === 0){
-      cellB.classList.add("fanny-win");
-      cellA.classList.add("fanny-lose");
+          if(set.b === 5 && set.a === 0){
+            cellB.classList.add("fanny-win");
+            cellA.classList.add("fanny-lose");
+            if(i === currentMatch.sets.length - 1) showFannyBadge();
+          }
+        }
 
-      if(i === history.length - 1){
-        showFannyBadge();
-      }
-    }
-
-        if(i === history.length - 1 && set){
+        if(i === currentMatch.sets.length - 1 && set){
           cellA.classList.add("new");
           cellB.classList.add("new");
         }
@@ -640,46 +1003,87 @@ function hasWonCurrentSet(playerScore, opponentScore){
       }
 
       updateScoreVisibility();
+      updateMetaPanel();
+      syncBoardWidth();
+    }
+
+    function persistCurrentMatch(){
+      localStorage.setItem(LOCAL_CURRENT_MATCH_KEY, JSON.stringify(currentMatch));
+    }
+
+    function restoreCurrentMatch(){
+      const raw = localStorage.getItem(LOCAL_CURRENT_MATCH_KEY);
+      if(!raw) return;
+
+      try{
+        const parsed = JSON.parse(raw);
+        currentMatch = {
+          ...createEmptyMatch(),
+          ...parsed,
+          teamA: { name: parsed?.teamA?.name || "JOUEUR A", players: parsed?.teamA?.players || [parsed?.teamA?.name || "JOUEUR A"] },
+          teamB: { name: parsed?.teamB?.name || "JOUEUR B", players: parsed?.teamB?.players || [parsed?.teamB?.name || "JOUEUR B"] },
+          sets: Array.isArray(parsed?.sets) ? parsed.sets : [],
+          goals: Array.isArray(parsed?.goals) ? parsed.goals : []
+        };
+      } catch(error){
+        console.error("Impossible de restaurer le match en cours", error);
+      }
+    }
+
+    function setStatus(text){
+      statusTextEl.textContent = text;
+    }
+
+    function recordGoal(team){
+      syncMatchMetaFromInputs();
+
+      currentMatch.goals.push({
+        id: createId("goal"),
+        sequence: currentMatch.goals.length + 1,
+        setNumber: currentMatch.sets.length + 1,
+        team,
+        scorer: team === "A" ? currentMatch.teamA.name : currentMatch.teamB.name,
+        scoreAAfter: currentMatch.scoreA,
+        scoreBAfter: currentMatch.scoreB,
+        type: "GOAL",
+        createdAt: new Date().toISOString()
+      });
+
+      persistCurrentMatch();
     }
 
     function resetScoresOnly(){
-      scoreA = 0;
-      scoreB = 0;
+      currentMatch.scoreA = 0;
+      currentMatch.scoreB = 0;
       updateScores();
       lastSpecialState = "";
-    }
-
-    function resetMatch(){
-      scoreA = 0;
-      scoreB = 0;
-      history = [];
-      lastSpecialState = "";
-
-      updateScores();
-      updateHistory();
-      updateScoreVisibility();
-      
+      persistCurrentMatch();
     }
 
     function recordCurrentSet(){
-      if(history.length >= MANCHES_MAX) return;
+      if(currentMatch.sets.length >= MANCHES_MAX) return;
 
-      history.push({
-        a: scoreA,
-        b: scoreB
+      currentMatch.sets.push({
+        a: currentMatch.scoreA,
+        b: currentMatch.scoreB,
+        setNumber: currentMatch.sets.length + 1,
+        completedAt: new Date().toISOString()
       });
 
       updateHistory();
+      persistCurrentMatch();
     }
 
     function finishMatch(){
+      currentMatch.status = "finished";
+      currentMatch.finishedAt = new Date().toISOString();
       updateHistory();
       updateScoreVisibility();
+      persistCurrentMatch();
     }
 
     function winSetA(){
       recordCurrentSet();
-
       if(isMatchFinished()){
         finishMatch();
       } else {
@@ -689,19 +1093,9 @@ function hasWonCurrentSet(playerScore, opponentScore){
         }, 350);
       }
     }
-
-function isMatchPointA(){
-  return getSetsWonA() === 2 && scoreA === 4 && !isMatchFinished();
-}
-
-function isMatchPointB(){
-  return getSetsWonB() === 2 && scoreB === 4 && !isMatchFinished();
-}
-
 
     function winSetB(){
       recordCurrentSet();
-
       if(isMatchFinished()){
         finishMatch();
       } else {
@@ -712,119 +1106,304 @@ function isMatchPointB(){
       }
     }
 
-function addGoalA(){
-  if(isMatchFinished()) return;
-
-  // limite max réaliste de la belle
-  if(isFinalSet() && scoreA >= 8) return;
-  if(!isFinalSet() && scoreA >= 5) return;
-
-  scoreA++;
-  updateScores();
-  flashScore(scoreAEl);
-
-  if(hasWonCurrentSet(scoreA, scoreB)){
-    winSetA();
-  }
-}
-
-function addGoalB(){
-  if(isMatchFinished()) return;
-
-  if(isFinalSet() && scoreB >= 8) return;
-  if(!isFinalSet() && scoreB >= 5) return;
-
-  scoreB++;
-  updateScores();
-  flashScore(scoreBEl);
-
-  if(hasWonCurrentSet(scoreB, scoreA)){
-    winSetB();
-  }
-}
-
-    function removeGoalA(){
+    function addGoalA(){
       if(isMatchFinished()) return;
+      if(isFinalSet() && currentMatch.scoreA >= SCORE_FINAL_SET_MAX) return;
+      if(!isFinalSet() && currentMatch.scoreA >= SCORE_NORMAL) return;
 
-      if(scoreA > 0){
-        scoreA--;
-        updateScores();
+      currentMatch.scoreA++;
+      recordGoal("A");
+      updateScores();
+      flashScore(scoreAEl);
+
+      if(hasWonCurrentSet(currentMatch.scoreA, currentMatch.scoreB)){
+        winSetA();
       }
     }
 
-    function removeGoalB(){
+    function addGoalB(){
       if(isMatchFinished()) return;
+      if(isFinalSet() && currentMatch.scoreB >= SCORE_FINAL_SET_MAX) return;
+      if(!isFinalSet() && currentMatch.scoreB >= SCORE_NORMAL) return;
 
-      if(scoreB > 0){
-        scoreB--;
-        updateScores();
+      currentMatch.scoreB++;
+      recordGoal("B");
+      updateScores();
+      flashScore(scoreBEl);
+
+      if(hasWonCurrentSet(currentMatch.scoreB, currentMatch.scoreA)){
+        winSetB();
       }
     }
 
-    function addSetManual(){
-      if(isMatchFinished()) return;
-      if(history.length >= MANCHES_MAX) return;
+    function rebuildFromGoals(){
+      currentMatch.scoreA = 0;
+      currentMatch.scoreB = 0;
+      currentMatch.sets = [];
+      currentMatch.status = "in_progress";
+      currentMatch.finishedAt = null;
 
-      recordCurrentSet();
-      resetScoresOnly();
+      const goalsCopy = [...currentMatch.goals].sort((a, b) => a.sequence - b.sequence);
+      currentMatch.goals = [];
+
+      for(const goal of goalsCopy){
+        if(goal.team === "A"){
+          currentMatch.scoreA++;
+        } else {
+          currentMatch.scoreB++;
+        }
+
+        currentMatch.goals.push({
+          ...goal,
+          sequence: currentMatch.goals.length + 1,
+          setNumber: currentMatch.sets.length + 1,
+          scoreAAfter: currentMatch.scoreA,
+          scoreBAfter: currentMatch.scoreB
+        });
+
+        if(hasWonCurrentSet(currentMatch.scoreA, currentMatch.scoreB)){
+          currentMatch.sets.push({
+            a: currentMatch.scoreA,
+            b: currentMatch.scoreB,
+            setNumber: currentMatch.sets.length + 1,
+            completedAt: goal.createdAt || new Date().toISOString()
+          });
+
+          if(getSetsWonA() >= MANCHES_POUR_GAGNER || getSetsWonB() >= MANCHES_POUR_GAGNER){
+            currentMatch.status = "finished";
+            currentMatch.finishedAt = goal.createdAt || new Date().toISOString();
+            break;
+          }
+
+          currentMatch.scoreA = 0;
+          currentMatch.scoreB = 0;
+        }
+      }
     }
 
-    function undoLastSet(){
-      if(history.length === 0) return;
+    function undoLastGoal(){
+      if(currentMatch.goals.length === 0) return;
+      currentMatch.goals.pop();
+      rebuildFromGoals();
+      updateScores();
+      updateHistory();
+      persistCurrentMatch();
+      setStatus("Dernier but annulé.");
+    }
 
-      const lastSet = history.pop();
-      scoreA = lastSet.a;
-      scoreB = lastSet.b;
+    function resetMatch(){
+      const tournamentName = tournamentNameInput.value.trim() || currentMatch.tournamentName;
+      const categoryName = categoryNameInput.value.trim() || currentMatch.categoryName;
+      const roundLabel = roundLabelInput.value.trim() || currentMatch.roundLabel;
+      const playerA = playerAInput.value.trim() || currentMatch.teamA.name;
+      const playerB = playerBInput.value.trim() || currentMatch.teamB.name;
 
+      currentMatch = createEmptyMatch();
+      currentMatch.tournamentName = tournamentName;
+      currentMatch.tournamentId = slugify(tournamentName);
+      currentMatch.categoryName = categoryName;
+      currentMatch.categoryId = slugify(categoryName);
+      currentMatch.roundLabel = roundLabel;
+      currentMatch.teamA.name = playerA;
+      currentMatch.teamA.players = [playerA];
+      currentMatch.teamB.name = playerB;
+      currentMatch.teamB.players = [playerB];
+
+      syncInputsFromMatch();
+      renderAll();
+      persistCurrentMatch();
+      setStatus("Nouveau match prêt.");
+    }
+
+    function getWinner(){
+      if(getSetsWonA() > getSetsWonB()) return "A";
+      if(getSetsWonB() > getSetsWonA()) return "B";
+      return null;
+    }
+
+    function buildMatchPayload(){
+      syncMatchMetaFromInputs();
+      return {
+        id: currentMatch.id,
+        tournamentId: currentMatch.tournamentId,
+        tournamentName: currentMatch.tournamentName,
+        categoryId: currentMatch.categoryId,
+        categoryName: currentMatch.categoryName,
+        roundLabel: currentMatch.roundLabel,
+        teamA: currentMatch.teamA,
+        teamB: currentMatch.teamB,
+        scoreA: currentMatch.scoreA,
+        scoreB: currentMatch.scoreB,
+        sets: currentMatch.sets,
+        goals: currentMatch.goals,
+        goalsCount: currentMatch.goals.length,
+        setsWonA: getSetsWonA(),
+        setsWonB: getSetsWonB(),
+        winner: getWinner(),
+        goalDifference: Math.abs(getSetsWonA() - getSetsWonB()),
+        status: isMatchFinished() ? "finished" : currentMatch.status,
+        startedAt: currentMatch.startedAt,
+        finishedAt: currentMatch.finishedAt,
+        savedAt: new Date().toISOString()
+      };
+    }
+
+    function saveMatchLocally(payload){
+      const savedMatches = JSON.parse(localStorage.getItem(LOCAL_SAVED_MATCHES_KEY) || "[]");
+      savedMatches.push(payload);
+      localStorage.setItem(LOCAL_SAVED_MATCHES_KEY, JSON.stringify(savedMatches));
+    }
+
+    async function saveMatchResult(){
+      if(!isMatchFinished()){
+        setStatus("Le match n'est pas terminé. Termine le match avant la sauvegarde.");
+        return;
+      }
+
+      const payload = buildMatchPayload();
+      saveMatchLocally(payload);
+
+      try{
+        await saveMatchToFirebase(payload);
+        currentMatch.savedAt = payload.savedAt;
+        persistCurrentMatch();
+        setStatus(`Résultat sauvegardé dans Firestore. ${payload.goalsCount} but(s) enregistrés.`);
+        console.log("Payload envoyé à Firestore :", payload);
+      } catch(error){
+        console.error(error);
+        currentMatch.savedAt = payload.savedAt;
+        persistCurrentMatch();
+        setStatus(`Sauvegarde locale OK mais Firebase a échoué : ${error.message}`);
+      }
+    }
+
+    function exportCurrentMatch(){
+      const payload = buildMatchPayload();
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${payload.tournamentId}_${payload.categoryId}_${payload.id}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      setStatus("Export JSON téléchargé.");
+    }
+
+    function updateGoalPreview(){
+      if(currentMatch.goals.length === 0){
+        goalPreviewEl.innerHTML = "<div>Aucun but enregistré.</div>";
+        return;
+      }
+
+      const lastGoals = currentMatch.goals.slice(-12);
+      goalPreviewEl.innerHTML = lastGoals
+        .map(goal => `<div>#${goal.sequence} - Manche ${goal.setNumber} - Équipe ${goal.team} - ${goal.scoreAAfter}/${goal.scoreBAfter}</div>`)
+        .join("");
+    }
+
+    function updateMetaPanel(){
+      matchMetaEl.innerHTML = `
+        <div><strong>Sets :</strong> ${getSetsWonA()} - ${getSetsWonB()}</div>
+        <div><strong>Buts enregistrés :</strong> ${currentMatch.goals.length}</div>
+        <div><strong>Statut :</strong> ${isMatchFinished() ? "terminé" : "en cours"}</div>
+        <div><strong>Match ID :</strong> ${currentMatch.id}</div>
+      `;
+    }
+
+    function renderTexts(){
+      syncMatchMetaFromInputs();
+      nameAEl.innerText = currentMatch.teamA.name;
+      nameBEl.innerText = currentMatch.teamB.name;
+      roundBadgeTextEl.innerText = `${currentMatch.tournamentName} - ${currentMatch.categoryName} - ${currentMatch.roundLabel}`;
+      updateNameColumnWidth();
+      syncBoardWidth();
+      persistCurrentMatch();
+    }
+
+    function renderAll(){
+      syncInputsFromMatch();
+      renderTexts();
       updateScores();
       updateHistory();
       updateScoreVisibility();
+      updateGoalPreview();
+      updateMetaPanel();
+      syncBoardWidth();
     }
+
+    window.addEventListener("resize", syncBoardWidth);
+
+    [tournamentNameInput, categoryNameInput, roundLabelInput, playerAInput, playerBInput].forEach(input => {
+      input.addEventListener("input", renderTexts);
+    });
+
+    saveMatchBtn.addEventListener("click", saveMatchResult);
+    exportCurrentBtn.addEventListener("click", exportCurrentMatch);
+    undoGoalBtn.addEventListener("click", undoLastGoal);
+    resetMatchBtn.addEventListener("click", resetMatch);
+    initFirebaseBtn.addEventListener("click", initFirebase);
+    testFirestoreBtn.addEventListener("click", testFirestoreConnection);
+    firebaseProjectIdInput.addEventListener("input", () => {
+      localStorage.setItem(LOCAL_FIREBASE_PROJECT_ID_KEY, firebaseProjectIdInput.value.trim());
+      firebaseApp = null;
+      firestoreDb = null;
+      firestoreFns = null;
+      setFirebaseStatus("Project ID mis à jour. Réinitialise Firebase pour reconnecter.");
+    });
 
     document.addEventListener("keydown", function(e){
       const key = e.key.toLowerCase();
 
       if(key === "a") addGoalA();
       if(key === "l") addGoalB();
-      if(key === "q") removeGoalA();
-      if(key === "m") removeGoalB();
-      if(key === "s") addSetManual();
-      if(key === "t") resetScoresOnly();
+      if(key === "q") undoLastGoal();
       if(key === "r") resetMatch();
-      if(key === "u") undoLastSet();
-
       if(key === "1"){
-        const newName = prompt("Nom du joueur A", nameAEl.innerText);
+        const newName = prompt("Nom du joueur A", currentMatch.teamA.name);
         if(newName){
-          playerAName = newName;
-          nameAEl.innerText = newName;
-          updateNameColumnWidth();
+          playerAInput.value = newName;
+          renderTexts();
         }
       }
-
       if(key === "2"){
-        const newName = prompt("Nom du joueur B", nameBEl.innerText);
+        const newName = prompt("Nom du joueur B", currentMatch.teamB.name);
         if(newName){
-          playerBName = newName;
-          nameBEl.innerText = newName;
-          updateNameColumnWidth();
+          playerBInput.value = newName;
+          renderTexts();
         }
       }
-
       if(key === "3"){
-        const newRound = prompt("Tour du match", roundBadgeTextEl.innerText);
+        const newRound = prompt("Tour du match", currentMatch.roundLabel);
         if(newRound){
-          roundLabel = newRound;
-          roundBadgeTextEl.innerText = newRound;
+          roundLabelInput.value = newRound;
+          renderTexts();
         }
       }
+      if(key === "4"){
+        const newTournament = prompt("Nom du tournoi", currentMatch.tournamentName);
+        if(newTournament){
+          tournamentNameInput.value = newTournament;
+          renderTexts();
+        }
+      }
+      if(key === "5"){
+        const newCategory = prompt("Catégorie", currentMatch.categoryName);
+        if(newCategory){
+          categoryNameInput.value = newCategory;
+          renderTexts();
+        }
+      }
+      if(key === "s") saveMatchResult();
     });
 
-    initTexts();
-    updateNameColumnWidth();
-    updateScores();
-    updateHistory();
-    updateScoreVisibility();
+    firebaseProjectIdInput.value = localStorage.getItem(LOCAL_FIREBASE_PROJECT_ID_KEY) || "";
+
+    restoreCurrentMatch();
+    renderAll();
+    setStatus("Version prête pour stockage : localStorage + Firestore.");
+    setFirebaseStatus("Remplis ton Project ID puis complète les clés Firebase dans getFirebaseConfig().");
   </script>
 </body>
 </html>
