@@ -220,6 +220,8 @@
       padding:0 var(--name-side-padding) 0 4px;
       display:flex;
       align-items:center;
+      justify-content:space-between;
+      gap:14px;
       min-height:56px;
       box-sizing:border-box;
       width:100%;
@@ -234,6 +236,36 @@
       display:inline-block;
       width:max-content;
       max-width:none;
+      transition:color 0.2s ease;
+    }
+
+    .player-name.winner{
+      color:#d9d9d9;
+    }
+
+    .player-timeouts{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:4px;
+      flex:0 0 auto;
+    }
+
+    .timeout-box{
+      width:16px;
+      height:16px;
+      border:2px solid rgba(255,255,255,0.92);
+      border-radius:3px;
+      background:transparent;
+      box-sizing:border-box;
+      transition:background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+    }
+
+    .timeout-box.used{
+      background:#d9d9d9;
+      border-color:#d9d9d9;
+      transform:scale(1.04);
     }
 
     
@@ -444,6 +476,118 @@
 
     #goalPreview div + div{ margin-top:4px; }
 
+    #recapPanel{
+      display:none;
+      width:100%;
+      margin:10px 0 12px;
+      padding:14px 16px;
+      border-radius:16px;
+      background:
+        linear-gradient(135deg, rgba(240,240,240,0.94), rgba(204,204,204,0.94)),
+        linear-gradient(90deg, rgba(255,255,255,0.25), rgba(255,255,255,0));
+      color:#111;
+      box-shadow:0 12px 30px rgba(0,0,0,0.24);
+      box-sizing:border-box;
+      position:relative;
+      overflow:hidden;
+    }
+
+    #recapPanel::before{
+      content:"";
+      position:absolute;
+      inset:0 auto 0 0;
+      width:8px;
+      background:linear-gradient(180deg, #b22222, #6e0f0f);
+    }
+
+    #recapPanel.show{
+      display:block;
+    }
+
+    .recap-broadcast-head{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:16px;
+      margin-bottom:12px;
+      padding-left:8px;
+    }
+
+    .recap-title{
+      font-size:13px;
+      font-weight:900;
+      letter-spacing:1.3px;
+      text-transform:uppercase;
+      color:#7a1010;
+    }
+
+    .recap-scoreline{
+      font-size:24px;
+      font-weight:900;
+      line-height:1.1;
+      color:#111;
+    }
+
+    .recap-live-tag{
+      flex:0 0 auto;
+      align-self:flex-start;
+      padding:6px 10px;
+      border-radius:999px;
+      background:#111;
+      color:#fff;
+      font-size:11px;
+      font-weight:900;
+      letter-spacing:1px;
+      text-transform:uppercase;
+    }
+
+    .recap-grid{
+      display:grid;
+      grid-template-columns:repeat(3, minmax(0, 1fr));
+      gap:10px;
+      padding-left:8px;
+    }
+
+    .recap-stat{
+      background:rgba(255,255,255,0.56);
+      border:1px solid rgba(17,17,17,0.08);
+      border-radius:12px;
+      padding:12px 12px 10px;
+      min-height:108px;
+      box-sizing:border-box;
+    }
+
+    .recap-stat-label{
+      font-size:11px;
+      font-weight:800;
+      letter-spacing:0.9px;
+      text-transform:uppercase;
+      color:#555;
+      margin-bottom:8px;
+    }
+
+    .recap-stat-value{
+      font-size:24px;
+      font-weight:900;
+      line-height:1.05;
+      color:#111;
+    }
+
+    .recap-stat-sub{
+      margin-top:8px;
+      font-size:12px;
+      line-height:1.45;
+      color:#333;
+    }
+
+    .recap-note{
+      margin-top:10px;
+      padding-left:8px;
+      font-size:11px;
+      line-height:1.45;
+      color:#444;
+    }
+
     @media (max-width: 900px){
       body{ overflow:auto; background:#111; }
       #overlay{
@@ -460,6 +604,10 @@
       #roundBadge{ min-width:unset; max-width:100%; width:auto; flex:1 1 auto; }
       #roundBadgeText{ overflow:hidden; text-overflow:ellipsis; }
       #specialPointBanner{ min-height:60px; max-width:45%; }
+      #recapPanel{ padding:12px 14px; }
+      .recap-broadcast-head{ flex-direction:column; align-items:flex-start; }
+      .recap-scoreline{ font-size:20px; }
+      .recap-grid{ grid-template-columns:1fr; }
       .player-name{ font-size:22px; }
       .player-score{ font-size:54px; }
       .set-score{ width:54px; font-size:24px; }
@@ -499,6 +647,9 @@
         <button id="exportCurrentBtn" class="primary">Exporter le match</button>
         <button id="undoGoalBtn" class="secondary">Annuler dernier but</button>
         <button id="resetMatchBtn" class="danger">Reset match</button>
+        <button id="timeoutABtn" class="secondary">Temps mort A</button>
+        <button id="timeoutBBtn" class="secondary">Temps mort B</button>
+        <button id="toggleRecapBtn" class="primary">Afficher récap</button>
       </div>
       <div id="statusText"></div>
       <div id="matchMeta"></div>
@@ -543,11 +694,17 @@
         </div>
       </div>
 
+      <div id="recapPanel"></div>
+
       <div id="scoreboard">
         <div id="mainBoard">
           <div class="player-row">
             <div class="player-name-wrap">
               <div id="nameA" class="player-name">JOUEUR A</div>
+              <div class="player-timeouts" aria-label="Temps morts joueur A">
+                <div id="timeoutA1" class="timeout-box"></div>
+                <div id="timeoutA2" class="timeout-box"></div>
+              </div>
             </div>
 
             <div class="name-score-separator"></div>
@@ -562,6 +719,10 @@
           <div class="player-row">
             <div class="player-name-wrap">
               <div id="nameB" class="player-name">JOUEUR B</div>
+              <div class="player-timeouts" aria-label="Temps morts joueur B">
+                <div id="timeoutB1" class="timeout-box"></div>
+                <div id="timeoutB2" class="timeout-box"></div>
+              </div>
             </div>
 
             <div class="name-score-separator"></div>
@@ -610,19 +771,34 @@
     const exportCurrentBtn = document.getElementById("exportCurrentBtn");
     const undoGoalBtn = document.getElementById("undoGoalBtn");
     const resetMatchBtn = document.getElementById("resetMatchBtn");
+    const timeoutABtn = document.getElementById("timeoutABtn");
+    const timeoutBBtn = document.getElementById("timeoutBBtn");
+    const toggleRecapBtn = document.getElementById("toggleRecapBtn");
     const statusTextEl = document.getElementById("statusText");
     const matchMetaEl = document.getElementById("matchMeta");
+    const recapPanelEl = document.getElementById("recapPanel");
     const goalPreviewEl = document.getElementById("goalPreview");
     const firebaseProjectIdInput = document.getElementById("firebaseProjectIdInput");
     const initFirebaseBtn = document.getElementById("initFirebaseBtn");
     const testFirestoreBtn = document.getElementById("testFirestoreBtn");
     const firebaseStatusTextEl = document.getElementById("firebaseStatusText");
+    const timeoutAEls = [
+      document.getElementById("timeoutA1"),
+      document.getElementById("timeoutA2")
+    ];
+    const timeoutBEls = [
+      document.getElementById("timeoutB1"),
+      document.getElementById("timeoutB2")
+    ];
+    const timeoutWrapAEl = timeoutAEls[0]?.parentElement;
+    const timeoutWrapBEl = timeoutBEls[0]?.parentElement;
 
     let lastSpecialState = "";
     let currentMatch = createEmptyMatch();
     let firebaseApp = null;
     let firestoreDb = null;
     let firestoreFns = null;
+    let recapVisible = false;
 
 
     function setFirebaseStatus(text, isError = false){
@@ -740,6 +916,7 @@
         scoreB: payload.scoreB,
         sets: payload.sets,
         goalsCount: payload.goalsCount,
+        timeouts: payload.timeouts,
         setsWonA: payload.setsWonA,
         setsWonB: payload.setsWonB,
         winner: payload.winner,
@@ -783,6 +960,10 @@
         scoreB: 0,
         sets: [],
         goals: [],
+        timeouts: {
+          A: 0,
+          B: 0
+        },
         status: "in_progress",
         startedAt: new Date().toISOString(),
         finishedAt: null,
@@ -863,9 +1044,12 @@
       const widthA = Math.ceil(nameAEl.scrollWidth);
       const widthB = Math.ceil(nameBEl.scrollWidth);
       const longest = Math.max(widthA, widthB);
+      const timeoutWidthA = Math.ceil(timeoutWrapAEl?.getBoundingClientRect().width || 0);
+      const timeoutWidthB = Math.ceil(timeoutWrapBEl?.getBoundingClientRect().width || 0);
+      const timeoutsWidth = Math.max(timeoutWidthA, timeoutWidthB);
       const rootStyles = getComputedStyle(document.documentElement);
       const sidePadding = parseFloat(rootStyles.getPropertyValue("--name-side-padding")) || 18;
-      const finalWidth = longest + sidePadding + 8;
+      const finalWidth = longest + timeoutsWidth + sidePadding + 22;
       document.documentElement.style.setProperty("--name-col-width", `${finalWidth}px`);
     }
 
@@ -874,6 +1058,7 @@
         const width = Math.ceil(scoreboardEl.getBoundingClientRect().width);
         if(width > 0){
           topRowEl.style.width = `${width}px`;
+          recapPanelEl.style.width = `${width}px`;
         }
         roundBadgeEl.style.width = "auto";
       });
@@ -928,6 +1113,7 @@
       updateSpecialPointBadge();
       updateMetaPanel();
       updateGoalPreview();
+      renderMatchRecap();
     }
 
     function flashScore(element){
@@ -938,13 +1124,18 @@
     function updateScoreVisibility(){
       const scoreEls = document.querySelectorAll(".player-score");
       const playerRows = document.querySelectorAll(".player-row");
+      const winner = getWinner();
 
       if(isMatchFinished()){
         scoreEls.forEach(el => el.classList.add("score-text-hidden"));
         playerRows.forEach(row => row.classList.add("match-finished"));
+        nameAEl.classList.toggle("winner", winner === "A");
+        nameBEl.classList.toggle("winner", winner === "B");
       } else {
         scoreEls.forEach(el => el.classList.remove("score-text-hidden"));
         playerRows.forEach(row => row.classList.remove("match-finished"));
+        nameAEl.classList.remove("winner");
+        nameBEl.classList.remove("winner");
       }
     }
 
@@ -1023,7 +1214,11 @@
           teamA: { name: parsed?.teamA?.name || "JOUEUR A", players: parsed?.teamA?.players || [parsed?.teamA?.name || "JOUEUR A"] },
           teamB: { name: parsed?.teamB?.name || "JOUEUR B", players: parsed?.teamB?.players || [parsed?.teamB?.name || "JOUEUR B"] },
           sets: Array.isArray(parsed?.sets) ? parsed.sets : [],
-          goals: Array.isArray(parsed?.goals) ? parsed.goals : []
+          goals: Array.isArray(parsed?.goals) ? parsed.goals : [],
+          timeouts: {
+            A: Math.min(2, Math.max(0, Number(parsed?.timeouts?.A) || 0)),
+            B: Math.min(2, Math.max(0, Number(parsed?.timeouts?.B) || 0))
+          }
         };
       } catch(error){
         console.error("Impossible de restaurer le match en cours", error);
@@ -1032,6 +1227,50 @@
 
     function setStatus(text){
       statusTextEl.textContent = text;
+    }
+
+    function updateTimeoutDisplay(){
+      timeoutAEls.forEach((el, index) => {
+        el.classList.toggle("used", index < currentMatch.timeouts.A);
+      });
+
+      timeoutBEls.forEach((el, index) => {
+        el.classList.toggle("used", index < currentMatch.timeouts.B);
+      });
+    }
+
+    function resetTimeouts(){
+      currentMatch.timeouts = {
+        A: 0,
+        B: 0
+      };
+      updateTimeoutDisplay();
+    }
+
+    function registerTimeout(team){
+      if(isMatchFinished()){
+        setStatus("Le match est terminé, impossible de prendre un temps mort.");
+        return;
+      }
+
+      if(team !== "A" && team !== "B"){
+        setStatus("Choisis A ou B pour attribuer le temps mort.");
+        return;
+      }
+
+      const teamKey = team;
+      const playerName = teamKey === "A" ? currentMatch.teamA.name : currentMatch.teamB.name;
+
+      if(currentMatch.timeouts[teamKey] >= 2){
+        setStatus(`${playerName} a déjà utilisé ses 2 temps morts dans cette manche.`);
+        return;
+      }
+
+      currentMatch.timeouts[teamKey] += 1;
+      updateTimeoutDisplay();
+      updateMetaPanel();
+      persistCurrentMatch();
+      setStatus(`Temps mort pris par ${playerName} (${currentMatch.timeouts[teamKey]}/2 sur cette manche).`);
     }
 
     function recordGoal(team){
@@ -1055,6 +1294,7 @@
     function resetScoresOnly(){
       currentMatch.scoreA = 0;
       currentMatch.scoreB = 0;
+      resetTimeouts();
       updateScores();
       lastSpecialState = "";
       persistCurrentMatch();
@@ -1140,6 +1380,7 @@
       currentMatch.scoreA = 0;
       currentMatch.scoreB = 0;
       currentMatch.sets = [];
+      resetTimeouts();
       currentMatch.status = "in_progress";
       currentMatch.finishedAt = null;
 
@@ -1177,6 +1418,7 @@
 
           currentMatch.scoreA = 0;
           currentMatch.scoreB = 0;
+          resetTimeouts();
         }
       }
     }
@@ -1221,6 +1463,166 @@
       return null;
     }
 
+    function escapeHtml(value){
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function hasWonCurrentSetForState(playerScore, opponentScore, completedSetsCount){
+      const isDecidingSet = completedSetsCount === 4;
+
+      if(!isDecidingSet){
+        return playerScore >= SCORE_NORMAL;
+      }
+
+      if(playerScore >= 5 && opponentScore <= 3){
+        return true;
+      }
+      if(playerScore === 8 && opponentScore === 7){
+        return true;
+      }
+      if(playerScore >= 6 && (playerScore - opponentScore) >= 2){
+        return true;
+      }
+      return false;
+    }
+
+    function isSetPointForTeam(team, scoreA, scoreB, completedSetsCount){
+      if(team === "A"){
+        return hasWonCurrentSetForState(scoreA + 1, scoreB, completedSetsCount);
+      }
+      return hasWonCurrentSetForState(scoreB + 1, scoreA, completedSetsCount);
+    }
+
+    function formatStatPercent(made, total){
+      const percent = total > 0 ? Math.round((made / total) * 100) : 0;
+      return `${percent}% (${made}/${total})`;
+    }
+
+    function computeMatchRecapStats(){
+      const sortedGoals = [...currentMatch.goals].sort((a, b) => a.sequence - b.sequence);
+      const stats = {
+        engagement: {
+          A: { made: 0, total: 0 },
+          B: { made: 0, total: 0 }
+        },
+        setPoint: {
+          A: { made: 0, total: 0 },
+          B: { made: 0, total: 0 }
+        },
+        streak: {
+          A: 0,
+          B: 0
+        }
+      };
+
+      let scoreA = 0;
+      let scoreB = 0;
+      let completedSetsCount = 0;
+      let engagementTeam = "A";
+      let currentStreakTeam = null;
+      let currentStreakCount = 0;
+
+      for(const goal of sortedGoals){
+        const team = goal.team === "B" ? "B" : "A";
+        const opponent = team === "A" ? "B" : "A";
+
+        stats.engagement[engagementTeam].total += 1;
+        if(team === engagementTeam){
+          stats.engagement[team].made += 1;
+        }
+
+        const aSetPoint = isSetPointForTeam("A", scoreA, scoreB, completedSetsCount);
+        const bSetPoint = isSetPointForTeam("B", scoreA, scoreB, completedSetsCount);
+        if(aSetPoint) stats.setPoint.A.total += 1;
+        if(bSetPoint) stats.setPoint.B.total += 1;
+
+        if(team === "A"){
+          scoreA += 1;
+        } else {
+          scoreB += 1;
+        }
+
+        if(currentStreakTeam === team){
+          currentStreakCount += 1;
+        } else {
+          currentStreakTeam = team;
+          currentStreakCount = 1;
+        }
+        stats.streak[team] = Math.max(stats.streak[team], currentStreakCount);
+
+        const aWonSet = hasWonCurrentSetForState(scoreA, scoreB, completedSetsCount);
+        const bWonSet = hasWonCurrentSetForState(scoreB, scoreA, completedSetsCount);
+
+        if(team === "A" && aSetPoint && aWonSet){
+          stats.setPoint.A.made += 1;
+        }
+        if(team === "B" && bSetPoint && bWonSet){
+          stats.setPoint.B.made += 1;
+        }
+
+        if(aWonSet || bWonSet){
+          completedSetsCount += 1;
+          scoreA = 0;
+          scoreB = 0;
+          engagementTeam = "A";
+          currentStreakTeam = null;
+          currentStreakCount = 0;
+        } else {
+          engagementTeam = opponent;
+        }
+      }
+
+      return stats;
+    }
+
+    function renderMatchRecap(){
+      if(!recapVisible){
+        recapPanelEl.innerHTML = "";
+        recapPanelEl.classList.remove("show");
+        toggleRecapBtn.textContent = "Afficher récap";
+        return;
+      }
+
+      const stats = computeMatchRecapStats();
+      const currentScoreLabel = `${getSetsWonA()}-${getSetsWonB()} manches | ${currentMatch.scoreA}-${currentMatch.scoreB} buts`;
+      const engagementTotalMade = stats.engagement.A.made + stats.engagement.B.made;
+      const engagementTotal = stats.engagement.A.total + stats.engagement.B.total;
+      const setPointTotalMade = stats.setPoint.A.made + stats.setPoint.B.made;
+      const setPointTotal = stats.setPoint.A.total + stats.setPoint.B.total;
+
+      recapPanelEl.innerHTML = `
+        <div class="recap-broadcast-head">
+          <div class="recap-title">Recap Match</div>
+          <div class="recap-live-tag">Live Stats</div>
+        </div>
+        <div class="recap-grid">
+          <div class="recap-stat">
+            <div class="recap-stat-label">Buts apres engagement</div>
+            <div class="recap-stat-value">${formatStatPercent(engagementTotalMade, engagementTotal)}</div>
+            <div class="recap-stat-sub">${escapeHtml(currentMatch.teamA.name)} ${formatStatPercent(stats.engagement.A.made, stats.engagement.A.total)}<br>${escapeHtml(currentMatch.teamB.name)} ${formatStatPercent(stats.engagement.B.made, stats.engagement.B.total)}</div>
+          </div>
+          <div class="recap-stat">
+            <div class="recap-stat-label">Balle de manche</div>
+            <div class="recap-stat-value">${formatStatPercent(setPointTotalMade, setPointTotal)}</div>
+            <div class="recap-stat-sub">${escapeHtml(currentMatch.teamA.name)} ${formatStatPercent(stats.setPoint.A.made, stats.setPoint.A.total)}<br>${escapeHtml(currentMatch.teamB.name)} ${formatStatPercent(stats.setPoint.B.made, stats.setPoint.B.total)}</div>
+          </div>
+          <div class="recap-stat">
+            <div class="recap-stat-label">Meilleure serie</div>
+            <div class="recap-stat-value">${Math.max(stats.streak.A, stats.streak.B)} buts</div>
+            <div class="recap-stat-sub">${escapeHtml(currentMatch.teamA.name)} ${stats.streak.A} but(s)<br>${escapeHtml(currentMatch.teamB.name)} ${stats.streak.B} but(s)</div>
+          </div>
+        </div>
+      `;
+
+      recapPanelEl.classList.add("show");
+      toggleRecapBtn.textContent = "Masquer récap";
+    }
+
     function buildMatchPayload(){
       syncMatchMetaFromInputs();
       return {
@@ -1237,6 +1639,7 @@
         sets: currentMatch.sets,
         goals: currentMatch.goals,
         goalsCount: currentMatch.goals.length,
+        timeouts: currentMatch.timeouts,
         setsWonA: getSetsWonA(),
         setsWonB: getSetsWonB(),
         winner: getWinner(),
@@ -1307,6 +1710,7 @@
       matchMetaEl.innerHTML = `
         <div><strong>Sets :</strong> ${getSetsWonA()} - ${getSetsWonB()}</div>
         <div><strong>Buts enregistrés :</strong> ${currentMatch.goals.length}</div>
+        <div><strong>Temps morts manche :</strong> ${currentMatch.teamA.name} ${currentMatch.timeouts.A}/2 - ${currentMatch.teamB.name} ${currentMatch.timeouts.B}/2</div>
         <div><strong>Statut :</strong> ${isMatchFinished() ? "terminé" : "en cours"}</div>
         <div><strong>Match ID :</strong> ${currentMatch.id}</div>
       `;
@@ -1318,6 +1722,7 @@
       nameBEl.innerText = currentMatch.teamB.name;
       roundBadgeTextEl.innerText = `${currentMatch.tournamentName} - ${currentMatch.categoryName} - ${currentMatch.roundLabel}`;
       updateNameColumnWidth();
+      renderMatchRecap();
       syncBoardWidth();
       persistCurrentMatch();
     }
@@ -1330,6 +1735,8 @@
       updateScoreVisibility();
       updateGoalPreview();
       updateMetaPanel();
+      updateTimeoutDisplay();
+      renderMatchRecap();
       syncBoardWidth();
     }
 
@@ -1343,6 +1750,12 @@
     exportCurrentBtn.addEventListener("click", exportCurrentMatch);
     undoGoalBtn.addEventListener("click", undoLastGoal);
     resetMatchBtn.addEventListener("click", resetMatch);
+    timeoutABtn.addEventListener("click", () => registerTimeout("A"));
+    timeoutBBtn.addEventListener("click", () => registerTimeout("B"));
+    toggleRecapBtn.addEventListener("click", () => {
+      recapVisible = !recapVisible;
+      renderMatchRecap();
+    });
     initFirebaseBtn.addEventListener("click", initFirebase);
     testFirestoreBtn.addEventListener("click", testFirestoreConnection);
     firebaseProjectIdInput.addEventListener("input", () => {
@@ -1354,10 +1767,21 @@
     });
 
     document.addEventListener("keydown", function(e){
+      const tagName = e.target?.tagName?.toLowerCase();
+      if(tagName === "input" || tagName === "textarea"){
+        return;
+      }
+
       const key = e.key.toLowerCase();
 
       if(key === "a") addGoalA();
       if(key === "l") addGoalB();
+      if(key === "m"){
+        const selectedTeam = prompt("Temps mort pour quel joueur ? Tape A ou B", "A");
+        if(selectedTeam){
+          registerTimeout(selectedTeam.trim().toUpperCase());
+        }
+      }
       if(key === "q") undoLastGoal();
       if(key === "r") resetMatch();
       if(key === "1"){
