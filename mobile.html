@@ -301,9 +301,9 @@
         grid-row:2;
         padding:12px;
         display:grid;
-        grid-template-columns:minmax(0, 1fr) minmax(0, 1.15fr);
+        grid-template-columns:minmax(0, 1fr) minmax(0, 1fr);
         gap:12px;
-        align-items:start;
+        align-items:stretch;
         min-height:0;
       }
 
@@ -427,34 +427,19 @@
         min-width:0;
       }
 
-      .sets-side{
-        min-width:0;
-        max-height:100%;
-        overflow:auto;
+      .actions-panel .action-grid{
+        grid-template-columns:1fr 1fr;
+        height:100%;
       }
 
-      .sets-history{
-        margin-top:0;
-        display:grid;
-        grid-template-columns:1fr;
-        max-height:100%;
-        overflow:auto;
-      }
-
-      .set-chip{
-        border-radius:12px;
-        padding:10px 12px;
-        font-size:13px;
-        line-height:1.4;
+      .actions-panel .action-grid .wide{
+        grid-column:auto;
+        height:100%;
       }
 
       .landscape-status{
         display:block;
         margin-top:0;
-      }
-
-      .sets-side .footer-note{
-        display:none;
       }
     }
   </style>
@@ -540,14 +525,10 @@
           <div class="action-grid">
             <button id="undoGoalBtn" class="dark">Annuler dernier but</button>
             <button id="saveMatchBtn" class="success">Sauvegarder resultat</button>
-            <button id="resetMatchBtn" class="danger wide">Reset match</button>
           </div>
           <div class="footer-note landscape-status">Projet Firebase utilise : <span id="firebaseProjectText">donnees-scoreboard</span></div>
         </div>
-        <div class="sets-side">
-          <div id="setsHistory" class="sets-history"></div>
-          <div class="footer-note">Projet Firebase utilise : <span id="firebaseProjectTextSecondary">donnees-scoreboard</span></div>
-        </div>
+        <button id="resetMatchBtn" class="danger wide">Reset match</button>
       </section>
     </div>
   </main>
@@ -587,7 +568,6 @@
     const statusLineEl = document.getElementById("statusLine");
     const setsHistoryEl = document.getElementById("setsHistory");
     const firebaseProjectTextEl = document.getElementById("firebaseProjectText");
-    const firebaseProjectTextSecondaryEl = document.getElementById("firebaseProjectTextSecondary");
     const timeoutAEls = [document.getElementById("timeoutA1"), document.getElementById("timeoutA2")];
     const timeoutBEls = [document.getElementById("timeoutB1"), document.getElementById("timeoutB2")];
 
@@ -771,6 +751,10 @@
     }
 
     function renderSetsHistory(){
+      if(!setsHistoryEl){
+        return;
+      }
+
       if(currentMatch.sets.length === 0){
         setsHistoryEl.innerHTML = '<div class="set-chip">Aucune manche terminee</div>';
         return;
@@ -804,7 +788,6 @@
       matchLineEl.textContent = `${currentMatch.tournamentName} - ${currentMatch.categoryName} - ${currentMatch.roundLabel}`;
       setsLineEl.textContent = `Manches ${getSetsWonA()} - ${getSetsWonB()}`;
       firebaseProjectTextEl.textContent = getFirebaseConfig().projectId;
-      firebaseProjectTextSecondaryEl.textContent = getFirebaseConfig().projectId;
       updateTimeoutDisplay();
       renderMiniSetHistory();
       renderSetsHistory();
