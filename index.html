@@ -476,6 +476,46 @@
 
     #goalPreview div + div{ margin-top:4px; }
 
+    .mobile-access-row{
+      display:flex;
+      gap:8px;
+      margin-top:10px;
+    }
+
+    .mobile-access-row input{
+      flex:1 1 auto;
+    }
+
+    #copyMobileUrlBtn{
+      flex:0 0 auto;
+      white-space:nowrap;
+    }
+
+    #mobileQrWrap{
+      margin-top:12px;
+      display:flex;
+      justify-content:center;
+      padding:12px;
+      border-radius:12px;
+      background:rgba(255,255,255,0.06);
+    }
+
+    #mobileQrImage{
+      display:block;
+      width:180px;
+      height:180px;
+      border-radius:10px;
+      background:white;
+      object-fit:contain;
+    }
+
+    #mobileAccessHelp{
+      margin-top:10px;
+      font-size:12px;
+      line-height:1.5;
+      opacity:0.84;
+    }
+
     #recapPanel{
       display:none;
       width:100%;
@@ -672,6 +712,18 @@
       <div id="firebaseStatusText" style="margin-top:10px;font-size:13px;opacity:0.9;line-height:1.5;"></div>
     </div>
 
+    <div class="panel-section">
+      <div><strong>Acces mobile</strong></div>
+      <div id="mobileAccessHelp">Ouvre cette URL sur le telephone pour piloter le score.</div>
+      <div class="mobile-access-row">
+        <input id="mobileUrlInput" type="text" value="" readonly />
+        <button id="copyMobileUrlBtn" class="primary">Copier</button>
+      </div>
+      <div id="mobileQrWrap">
+        <img id="mobileQrImage" alt="QR code vers la commande mobile" />
+      </div>
+    </div>
+
 
     <div class="panel-section">
       <div><strong>Aperçu des buts enregistrés</strong></div>
@@ -746,6 +798,8 @@
     const LOCAL_CURRENT_MATCH_KEY = "babyfoot_current_match_v2";
     const LOCAL_SAVED_MATCHES_KEY = "babyfoot_saved_matches_v2";
     const LOCAL_FIREBASE_PROJECT_ID_KEY = "babyfoot_firebase_project_id_v1";
+    const LIVE_MATCH_COLLECTION = "scoreboard_live";
+    const LIVE_MATCH_DOCUMENT = "current_match";
 
     const scoreAEl = document.getElementById("scoreA");
     const scoreBEl = document.getElementById("scoreB");
@@ -782,6 +836,10 @@
     const initFirebaseBtn = document.getElementById("initFirebaseBtn");
     const testFirestoreBtn = document.getElementById("testFirestoreBtn");
     const firebaseStatusTextEl = document.getElementById("firebaseStatusText");
+    const mobileUrlInput = document.getElementById("mobileUrlInput");
+    const copyMobileUrlBtn = document.getElementById("copyMobileUrlBtn");
+    const mobileQrImage = document.getElementById("mobileQrImage");
+    const mobileAccessHelpEl = document.getElementById("mobileAccessHelp");
     const timeoutAEls = [
       document.getElementById("timeoutA1"),
       document.getElementById("timeoutA2")
@@ -799,6 +857,10 @@
     let firestoreDb = null;
     let firestoreFns = null;
     let recapVisible = false;
+    let liveSyncUnsubscribe = null;
+    let liveSyncWriteTimer = null;
+    let isApplyingRemoteMatch = false;
+    let lastLiveMatchSignature = "";
 
 
     function setFirebaseStatus(text, isError = false){
@@ -807,15 +869,12 @@
     }
 
     function getFirebaseConfig(){
-      const projectId = (firebaseProjectIdInput.value || "").trim();
-      if(!projectId){
-        throw new Error("Renseigne d'abord le Project ID Firebase.");
-      }
+      const projectId = (firebaseProjectIdInput.value || "").trim() || "donnees-scoreboard";
 
       return {
         apiKey: "AIzaSyDaxmq1InTn2hw-Zn0vP9VCQcNT_C2DWfY",
         authDomain: "donnees-scoreboard.firebaseapp.com",
-        projectId: "donnees-scoreboard",
+        projectId,
         storageBucket: "donnees-scoreboard.firebasestorage.app",
         messagingSenderId: "135990680324",
         appId: "1:135990680324:web:3a3004df845276cb74ce51",
@@ -849,6 +908,7 @@
         firebaseApp = initializeApp(config);
         firestoreDb = firestoreModule.getFirestore(firebaseApp);
         firestoreFns = firestoreModule;
+        startLiveSync();
         setFirebaseStatus(`Firebase connecté sur ${config.projectId}.`);
         return true;
       } catch(error){
@@ -969,6 +1029,161 @@
         finishedAt: null,
         savedAt: null
       };
+    }
+
+    function normalizeMatch(raw){
+      const fallback = createEmptyMatch();
+      return {
+        ...fallback,
+        ...raw,
+        teamA: {
+          name: raw?.teamA?.name || fallback.teamA.name,
+          players: Array.isArray(raw?.teamA?.players) && raw.teamA.players.length ? raw.teamA.players : [raw?.teamA?.name || fallback.teamA.name]
+        },
+        teamB: {
+          name: raw?.teamB?.name || fallback.teamB.name,
+          players: Array.isArray(raw?.teamB?.players) && raw.teamB.players.length ? raw.teamB.players : [raw?.teamB?.name || fallback.teamB.name]
+        },
+        sets: Array.isArray(raw?.sets) ? raw.sets : [],
+        goals: Array.isArray(raw?.goals) ? raw.goals : [],
+        timeouts: {
+          A: Math.min(2, Math.max(0, Number(raw?.timeouts?.A) || 0)),
+          B: Math.min(2, Math.max(0, Number(raw?.timeouts?.B) || 0))
+        }
+      };
+    }
+
+    function getMatchSignature(match){
+      return JSON.stringify({
+        id: match.id,
+        tournamentId: match.tournamentId,
+        tournamentName: match.tournamentName,
+        categoryId: match.categoryId,
+        categoryName: match.categoryName,
+        roundLabel: match.roundLabel,
+        teamA: match.teamA,
+        teamB: match.teamB,
+        scoreA: match.scoreA,
+        scoreB: match.scoreB,
+        sets: match.sets,
+        goals: match.goals,
+        timeouts: match.timeouts,
+        status: match.status,
+        startedAt: match.startedAt,
+        finishedAt: match.finishedAt,
+        savedAt: match.savedAt
+      });
+    }
+
+    function getMobileControlUrl(){
+      try{
+        if(window.location.protocol === "http:" || window.location.protocol === "https:"){
+          return new URL("mobile.html", window.location.href).toString();
+        }
+      } catch(error){
+        console.error("Impossible de construire l'URL mobile", error);
+      }
+
+      return "";
+    }
+
+    function renderMobileAccess(){
+      const mobileUrl = getMobileControlUrl();
+
+      if(mobileUrl){
+        mobileUrlInput.value = mobileUrl;
+        mobileQrImage.src = `https://quickchart.io/qr?size=220&text=${encodeURIComponent(mobileUrl)}`;
+        mobileQrImage.style.display = "block";
+        mobileAccessHelpEl.textContent = "Scanne le QR code ou ouvre cette URL sur le telephone.";
+        copyMobileUrlBtn.disabled = false;
+        return;
+      }
+
+      mobileUrlInput.value = "";
+      mobileQrImage.removeAttribute("src");
+      mobileQrImage.style.display = "none";
+      mobileAccessHelpEl.textContent = "La page est ouverte en fichier local. Lance un serveur HTTP sur le PC puis ouvre l'adresse reseau menant a mobile.html.";
+      copyMobileUrlBtn.disabled = true;
+    }
+
+    function startLiveSync(){
+      if(!firestoreDb || !firestoreFns || liveSyncUnsubscribe){
+        return;
+      }
+
+      const { doc, onSnapshot } = firestoreFns;
+      const liveRef = doc(firestoreDb, LIVE_MATCH_COLLECTION, LIVE_MATCH_DOCUMENT);
+
+      liveSyncUnsubscribe = onSnapshot(liveRef, (snapshot) => {
+        if(!snapshot.exists()){
+          scheduleLiveSync();
+          return;
+        }
+
+        const remoteMatch = normalizeMatch(snapshot.data());
+        const remoteSignature = getMatchSignature(remoteMatch);
+        lastLiveMatchSignature = remoteSignature;
+
+        if(remoteSignature === getMatchSignature(currentMatch)){
+          return;
+        }
+
+        isApplyingRemoteMatch = true;
+        currentMatch = remoteMatch;
+        renderAll();
+        persistCurrentMatch({ skipLiveSync: true });
+        isApplyingRemoteMatch = false;
+        setStatus("Match en cours synchronisÃ© depuis Firebase.");
+      }, (error) => {
+        console.error(error);
+        setFirebaseStatus(`Sync live indisponible : ${error.message}`, true);
+      });
+    }
+
+    function scheduleLiveSync(){
+      if(isApplyingRemoteMatch){
+        return;
+      }
+
+      if(liveSyncWriteTimer){
+        clearTimeout(liveSyncWriteTimer);
+      }
+
+      liveSyncWriteTimer = setTimeout(() => {
+        pushLiveMatchState();
+      }, 120);
+    }
+
+    async function pushLiveMatchState(){
+      if(isApplyingRemoteMatch){
+        return;
+      }
+
+      const ready = await initFirebase();
+      if(!ready || !firestoreDb || !firestoreFns){
+        return;
+      }
+
+      const payload = buildMatchPayload();
+      const nextSignature = getMatchSignature(payload);
+
+      if(nextSignature === lastLiveMatchSignature){
+        return;
+      }
+
+      try{
+        const { doc, setDoc, serverTimestamp } = firestoreFns;
+        const liveRef = doc(firestoreDb, LIVE_MATCH_COLLECTION, LIVE_MATCH_DOCUMENT);
+        await setDoc(liveRef, {
+          ...payload,
+          liveUpdatedAt: new Date().toISOString(),
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+        lastLiveMatchSignature = nextSignature;
+      } catch(error){
+        console.error(error);
+        setFirebaseStatus(`Impossible d'envoyer le match live : ${error.message}`, true);
+      }
     }
 
     function slugify(value){
@@ -1198,8 +1413,11 @@
       syncBoardWidth();
     }
 
-    function persistCurrentMatch(){
+    function persistCurrentMatch(options = {}){
       localStorage.setItem(LOCAL_CURRENT_MATCH_KEY, JSON.stringify(currentMatch));
+      if(!options.skipLiveSync){
+        scheduleLiveSync();
+      }
     }
 
     function restoreCurrentMatch(){
@@ -1208,18 +1426,7 @@
 
       try{
         const parsed = JSON.parse(raw);
-        currentMatch = {
-          ...createEmptyMatch(),
-          ...parsed,
-          teamA: { name: parsed?.teamA?.name || "JOUEUR A", players: parsed?.teamA?.players || [parsed?.teamA?.name || "JOUEUR A"] },
-          teamB: { name: parsed?.teamB?.name || "JOUEUR B", players: parsed?.teamB?.players || [parsed?.teamB?.name || "JOUEUR B"] },
-          sets: Array.isArray(parsed?.sets) ? parsed.sets : [],
-          goals: Array.isArray(parsed?.goals) ? parsed.goals : [],
-          timeouts: {
-            A: Math.min(2, Math.max(0, Number(parsed?.timeouts?.A) || 0)),
-            B: Math.min(2, Math.max(0, Number(parsed?.timeouts?.B) || 0))
-          }
-        };
+        currentMatch = normalizeMatch(parsed);
       } catch(error){
         console.error("Impossible de restaurer le match en cours", error);
       }
@@ -1737,6 +1944,7 @@
       updateMetaPanel();
       updateTimeoutDisplay();
       renderMatchRecap();
+      renderMobileAccess();
       syncBoardWidth();
     }
 
@@ -1758,11 +1966,28 @@
     });
     initFirebaseBtn.addEventListener("click", initFirebase);
     testFirestoreBtn.addEventListener("click", testFirestoreConnection);
+    copyMobileUrlBtn.addEventListener("click", async () => {
+      if(!mobileUrlInput.value) return;
+
+      try{
+        await navigator.clipboard.writeText(mobileUrlInput.value);
+        setStatus("Lien mobile copie.");
+      } catch(error){
+        mobileUrlInput.focus();
+        mobileUrlInput.select();
+        setStatus("Lien mobile selectionne pour copie manuelle.");
+      }
+    });
     firebaseProjectIdInput.addEventListener("input", () => {
       localStorage.setItem(LOCAL_FIREBASE_PROJECT_ID_KEY, firebaseProjectIdInput.value.trim());
+      if(liveSyncUnsubscribe){
+        liveSyncUnsubscribe();
+        liveSyncUnsubscribe = null;
+      }
       firebaseApp = null;
       firestoreDb = null;
       firestoreFns = null;
+      lastLiveMatchSignature = "";
       setFirebaseStatus("Project ID mis à jour. Réinitialise Firebase pour reconnecter.");
     });
 
@@ -1822,12 +2047,18 @@
       if(key === "s") saveMatchResult();
     });
 
-    firebaseProjectIdInput.value = localStorage.getItem(LOCAL_FIREBASE_PROJECT_ID_KEY) || "";
+    firebaseProjectIdInput.value = localStorage.getItem(LOCAL_FIREBASE_PROJECT_ID_KEY) || "donnees-scoreboard";
 
     restoreCurrentMatch();
     renderAll();
+    initFirebase();
+    setStatus("Version PC prete avec synchronisation live.");
     setStatus("Version prête pour stockage : localStorage + Firestore.");
     setFirebaseStatus("Remplis ton Project ID puis complète les clés Firebase dans getFirebaseConfig().");
+    setStatus("Version PC prÃªte avec synchronisation live.");
+    setFirebaseStatus("Connexion Firebase en cours pour le match live.");
+    setStatus("Version PC prete avec synchronisation live.");
+    setFirebaseStatus("Connexion Firebase en cours pour le match live.");
   </script>
 </body>
 </html>
