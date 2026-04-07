@@ -120,6 +120,15 @@
       gap:10px;
     }
 
+    .team-side{
+      display:flex;
+      flex-direction:column;
+      align-items:flex-end;
+      gap:8px;
+      flex:0 0 auto;
+      min-width:40px;
+    }
+
     .team-name{
       font-size:24px;
       font-weight:900;
@@ -140,6 +149,27 @@
       display:flex;
       gap:8px;
       margin-top:4px;
+    }
+
+    .set-mini-history{
+      display:flex;
+      flex-direction:column;
+      align-items:flex-end;
+      gap:6px;
+      min-height:18px;
+    }
+
+    .set-mini-score{
+      min-width:24px;
+      padding:3px 6px;
+      border-radius:8px;
+      background:rgba(255,255,255,0.08);
+      border:1px solid rgba(255,255,255,0.08);
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+      line-height:1;
+      text-align:center;
     }
 
     .timeout-box{
@@ -345,11 +375,16 @@
       }
 
       .team-head{
-        align-items:center;
+        align-items:flex-start;
       }
 
       .team-name{
         font-size:22px;
+      }
+
+      .team-side{
+        gap:8px;
+        min-width:46px;
       }
 
       .score{
@@ -365,6 +400,16 @@
       .timeout-box{
         width:16px;
         height:16px;
+      }
+
+      .set-mini-history{
+        gap:5px;
+      }
+
+      .set-mini-score{
+        min-width:28px;
+        padding:4px 6px;
+        font-size:12px;
       }
 
       .action-grid{
@@ -456,9 +501,12 @@
         <section id="teamASection" class="team-card">
           <div class="team-head">
             <div id="nameA" class="team-name">JOUEUR A</div>
-            <div class="timeout-row" aria-label="Temps morts joueur A">
-              <div id="timeoutA1" class="timeout-box"></div>
-              <div id="timeoutA2" class="timeout-box"></div>
+            <div class="team-side">
+              <div class="timeout-row" aria-label="Temps morts joueur A">
+                <div id="timeoutA1" class="timeout-box"></div>
+                <div id="timeoutA2" class="timeout-box"></div>
+              </div>
+              <div id="setHistoryA" class="set-mini-history" aria-label="Recap manches joueur A"></div>
             </div>
           </div>
           <div id="scoreA" class="score">0</div>
@@ -471,9 +519,12 @@
         <section id="teamBSection" class="team-card">
           <div class="team-head">
             <div id="nameB" class="team-name">JOUEUR B</div>
-            <div class="timeout-row" aria-label="Temps morts joueur B">
-              <div id="timeoutB1" class="timeout-box"></div>
-              <div id="timeoutB2" class="timeout-box"></div>
+            <div class="team-side">
+              <div class="timeout-row" aria-label="Temps morts joueur B">
+                <div id="timeoutB1" class="timeout-box"></div>
+                <div id="timeoutB2" class="timeout-box"></div>
+              </div>
+              <div id="setHistoryB" class="set-mini-history" aria-label="Recap manches joueur B"></div>
             </div>
           </div>
           <div id="scoreB" class="score">0</div>
@@ -521,6 +572,8 @@
     const nameBEl = document.getElementById("nameB");
     const scoreAEl = document.getElementById("scoreA");
     const scoreBEl = document.getElementById("scoreB");
+    const setHistoryAEl = document.getElementById("setHistoryA");
+    const setHistoryBEl = document.getElementById("setHistoryB");
     const goalABtn = document.getElementById("goalABtn");
     const goalBBtn = document.getElementById("goalBBtn");
     const timeoutABtn = document.getElementById("timeoutABtn");
@@ -701,6 +754,22 @@
       timeoutBEls.forEach((el, index) => el.classList.toggle("used", index < currentMatch.timeouts.B));
     }
 
+    function renderMiniSetHistory(){
+      if(currentMatch.sets.length === 0){
+        setHistoryAEl.innerHTML = "";
+        setHistoryBEl.innerHTML = "";
+        return;
+      }
+
+      setHistoryAEl.innerHTML = currentMatch.sets
+        .map((set) => `<div class="set-mini-score">${set.a}</div>`)
+        .join("");
+
+      setHistoryBEl.innerHTML = currentMatch.sets
+        .map((set) => `<div class="set-mini-score">${set.b}</div>`)
+        .join("");
+    }
+
     function renderSetsHistory(){
       if(currentMatch.sets.length === 0){
         setsHistoryEl.innerHTML = '<div class="set-chip">Aucune manche terminee</div>';
@@ -737,6 +806,7 @@
       firebaseProjectTextEl.textContent = getFirebaseConfig().projectId;
       firebaseProjectTextSecondaryEl.textContent = getFirebaseConfig().projectId;
       updateTimeoutDisplay();
+      renderMiniSetHistory();
       renderSetsHistory();
 
       const finished = isMatchFinished();
