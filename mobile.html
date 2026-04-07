@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Scoreboard Baby-Foot Mobile</title>
+  <style>
+    :root{
+      --bg:#121212;
+      --panel:#1d1d1d;
+      --panel-2:#262626;
+      --text:#f3f3f3;
+      --muted:#bdbdbd;
+      --accent:#f2bf27;
+      --danger:#c94b4b;
+      --success:#248b57;
+      --border:rgba(255,255,255,0.08);
+    }
+
+    *{ box-sizing:border-box; }
+
+    body{
+      margin:0;
+      background:
+        radial-gradient(circle at top, rgba(242,191,39,0.18), transparent 32%),
+        linear-gradient(180deg, #1a1a1a 0%, #0f0f0f 100%);
+      color:var(--text);
+      font-family:Arial, sans-serif;
+      min-height:100vh;
+    }
+
+    main{
+      width:min(100%, 560px);
+      margin:0 auto;
+      padding:16px 14px 28px;
+    }
+
+    .panel{
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:14px;
+      box-shadow:0 10px 30px rgba(0,0,0,0.25);
+    }
+
+    .panel + .panel{
+      margin-top:14px;
+    }
+
+    .title{
+      font-size:22px;
+      font-weight:900;
+      letter-spacing:0.04em;
+      text-transform:uppercase;
+      margin:0 0 8px;
+    }
+
+    .subtitle{
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.4;
+      margin:0;
+    }
+
+    .status-pill{
+      display:inline-flex;
+      align-items:center;
+      min-height:36px;
+      border-radius:999px;
+      padding:0 12px;
+      background:var(--panel-2);
+      color:var(--muted);
+      font-size:13px;
+      margin-top:12px;
+    }
+
+    .meta-grid{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:10px;
+      margin-top:12px;
+    }
+
+    label{
+      display:block;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:0.08em;
+      color:var(--muted);
+      margin-bottom:6px;
+    }
+
+    input{
+      width:100%;
+      border:1px solid var(--border);
+      border-radius:12px;
+      background:#101010;
+      color:var(--text);
+      padding:14px 12px;
+      font-size:16px;
+    }
+
+    .team-card{
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:22px;
+      padding:16px;
+    }
+
+    .team-card + .team-card{
+      margin-top:14px;
+    }
+
+    .team-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+    }
+
+    .team-name{
+      font-size:24px;
+      font-weight:900;
+      line-height:1.1;
+      text-transform:uppercase;
+      word-break:break-word;
+    }
+
+    .score{
+      font-size:92px;
+      line-height:0.95;
+      font-weight:900;
+      margin:14px 0 12px;
+      text-align:center;
+    }
+
+    .timeout-row{
+      display:flex;
+      gap:8px;
+      margin-top:4px;
+    }
+
+    .timeout-box{
+      width:18px;
+      height:18px;
+      border-radius:4px;
+      border:2px solid rgba(255,255,255,0.7);
+    }
+
+    .timeout-box.used{
+      background:var(--accent);
+      border-color:var(--accent);
+    }
+
+    .action-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+
+    button{
+      border:none;
+      border-radius:16px;
+      min-height:58px;
+      padding:12px 14px;
+      font-size:17px;
+      font-weight:800;
+      color:#111;
+      background:#fff;
+      touch-action:manipulation;
+    }
+
+    button:disabled{
+      opacity:0.45;
+    }
+
+    .primary{ background:var(--accent); }
+    .secondary{ background:#d7d7d7; }
+    .danger{ background:var(--danger); color:#fff; }
+    .success{ background:var(--success); color:#fff; }
+    .dark{ background:#343434; color:#fff; }
+    .wide{ grid-column:1 / -1; }
+
+    .match-line{
+      font-size:18px;
+      font-weight:800;
+      margin:0;
+    }
+
+    .sets-history{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:12px;
+    }
+
+    .set-chip{
+      background:var(--panel-2);
+      border:1px solid var(--border);
+      border-radius:999px;
+      padding:8px 12px;
+      font-size:13px;
+      color:var(--muted);
+    }
+
+    .footer-note{
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.5;
+      margin-top:10px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="panel">
+      <h1 class="title">Commande mobile</h1>
+      <p class="subtitle">Cette page sert a piloter le match. Chaque modification est envoyee au scoreboard PC via Firebase.</p>
+      <div id="syncStatus" class="status-pill">Connexion en cours...</div>
+    </section>
+
+    <section class="panel">
+      <p id="matchLine" class="match-line">Tournoi du club - Open Simple - Finale</p>
+      <div id="setsLine" class="status-pill">Manches 0 - 0</div>
+      <div id="statusLine" class="footer-note">Match en cours.</div>
+
+      <div class="meta-grid">
+        <div>
+          <label for="tournamentNameInput">Tournoi</label>
+          <input id="tournamentNameInput" type="text" value="Tournoi du club" />
+        </div>
+        <div>
+          <label for="categoryNameInput">Categorie</label>
+          <input id="categoryNameInput" type="text" value="Open Simple" />
+        </div>
+        <div>
+          <label for="roundLabelInput">Tour</label>
+          <input id="roundLabelInput" type="text" value="Finale" />
+        </div>
+        <div>
+          <label for="playerAInput">Joueur A</label>
+          <input id="playerAInput" type="text" value="TOURMANTE.A" />
+        </div>
+        <div>
+          <label for="playerBInput">Joueur B</label>
+          <input id="playerBInput" type="text" value="DROIT.T" />
+        </div>
+      </div>
+    </section>
+
+    <section id="teamASection" class="team-card">
+      <div class="team-head">
+        <div id="nameA" class="team-name">JOUEUR A</div>
+        <div class="timeout-row" aria-label="Temps morts joueur A">
+          <div id="timeoutA1" class="timeout-box"></div>
+          <div id="timeoutA2" class="timeout-box"></div>
+        </div>
+      </div>
+      <div id="scoreA" class="score">0</div>
+      <div class="action-grid">
+        <button id="goalABtn" class="primary">+1 but A</button>
+        <button id="timeoutABtn" class="secondary">Temps mort A</button>
+      </div>
+    </section>
+
+    <section id="teamBSection" class="team-card">
+      <div class="team-head">
+        <div id="nameB" class="team-name">JOUEUR B</div>
+        <div class="timeout-row" aria-label="Temps morts joueur B">
+          <div id="timeoutB1" class="timeout-box"></div>
+          <div id="timeoutB2" class="timeout-box"></div>
+        </div>
+      </div>
+      <div id="scoreB" class="score">0</div>
+      <div class="action-grid">
+        <button id="goalBBtn" class="primary">+1 but B</button>
+        <button id="timeoutBBtn" class="secondary">Temps mort B</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="action-grid">
+        <button id="undoGoalBtn" class="dark">Annuler dernier but</button>
+        <button id="saveMatchBtn" class="success">Sauvegarder resultat</button>
+        <button id="resetMatchBtn" class="danger wide">Reset match</button>
+      </div>
+      <div id="setsHistory" class="sets-history"></div>
+      <div class="footer-note">Projet Firebase utilise : <span id="firebaseProjectText">donnees-scoreboard</span></div>
+    </section>
+  </main>
+
+  <script>
+    const SCORE_NORMAL = 5;
+    const SCORE_FINAL_SET_MAX = 8;
+    const MANCHES_MAX = 5;
+    const MANCHES_POUR_GAGNER = 3;
+    const LOCAL_CURRENT_MATCH_KEY = "babyfoot_current_match_v2";
+    const LOCAL_SAVED_MATCHES_KEY = "babyfoot_saved_matches_v2";
+    const LOCAL_FIREBASE_PROJECT_ID_KEY = "babyfoot_firebase_project_id_v1";
+    const LIVE_MATCH_COLLECTION = "scoreboard_live";
+    const LIVE_MATCH_DOCUMENT = "current_match";
+
+    const tournamentNameInput = document.getElementById("tournamentNameInput");
+    const categoryNameInput = document.getElementById("categoryNameInput");
+    const roundLabelInput = document.getElementById("roundLabelInput");
+    const playerAInput = document.getElementById("playerAInput");
+    const playerBInput = document.getElementById("playerBInput");
+    const nameAEl = document.getElementById("nameA");
+    const nameBEl = document.getElementById("nameB");
+    const scoreAEl = document.getElementById("scoreA");
+    const scoreBEl = document.getElementById("scoreB");
+    const goalABtn = document.getElementById("goalABtn");
+    const goalBBtn = document.getElementById("goalBBtn");
+    const timeoutABtn = document.getElementById("timeoutABtn");
+    const timeoutBBtn = document.getElementById("timeoutBBtn");
+    const undoGoalBtn = document.getElementById("undoGoalBtn");
+    const resetMatchBtn = document.getElementById("resetMatchBtn");
+    const saveMatchBtn = document.getElementById("saveMatchBtn");
+    const syncStatusEl = document.getElementById("syncStatus");
+    const matchLineEl = document.getElementById("matchLine");
+    const setsLineEl = document.getElementById("setsLine");
+    const statusLineEl = document.getElementById("statusLine");
+    const setsHistoryEl = document.getElementById("setsHistory");
+    const firebaseProjectTextEl = document.getElementById("firebaseProjectText");
+    const timeoutAEls = [document.getElementById("timeoutA1"), document.getElementById("timeoutA2")];
+    const timeoutBEls = [document.getElementById("timeoutB1"), document.getElementById("timeoutB2")];
+
+    let currentMatch = createEmptyMatch();
+    let firebaseApp = null;
+    let firestoreDb = null;
+    let firestoreFns = null;
+    let liveSyncUnsubscribe = null;
+    let liveSyncWriteTimer = null;
+    let isApplyingRemoteMatch = false;
+    let lastLiveMatchSignature = "";
+
+    function setSyncStatus(text, isError = false){
+      syncStatusEl.textContent = text;
+      syncStatusEl.style.color = isError ? "#ffd1d1" : "#bdbdbd";
+    }
+
+    function setStatus(text){
+      statusLineEl.textContent = text;
+    }
+
+    function createId(prefix){
+      return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    }
+
+    function createEmptyMatch(){
+      return {
+        id: createId("match"),
+        tournamentId: "tournoi_du_club",
+        tournamentName: "Tournoi du club",
+        categoryId: "open_simple",
+        categoryName: "Open Simple",
+        roundLabel: "Finale",
+        teamA: {
+          name: "TOURMANTE.A",
+          players: ["TOURMANTE.A"]
+        },
+        teamB: {
+          name: "DROIT.T",
+          players: ["DROIT.T"]
+        },
+        scoreA: 0,
+        scoreB: 0,
+        sets: [],
+        goals: [],
+        timeouts: {
+          A: 0,
+          B: 0
+        },
+        status: "in_progress",
+        startedAt: new Date().toISOString(),
+        finishedAt: null,
+        savedAt: null
+      };
+    }
+
+    function normalizeMatch(raw){
+      const fallback = createEmptyMatch();
+      return {
+        ...fallback,
+        ...raw,
+        teamA: {
+          name: raw?.teamA?.name || fallback.teamA.name,
+          players: Array.isArray(raw?.teamA?.players) && raw.teamA.players.length ? raw.teamA.players : [raw?.teamA?.name || fallback.teamA.name]
+        },
+        teamB: {
+          name: raw?.teamB?.name || fallback.teamB.name,
+          players: Array.isArray(raw?.teamB?.players) && raw.teamB.players.length ? raw.teamB.players : [raw?.teamB?.name || fallback.teamB.name]
+        },
+        sets: Array.isArray(raw?.sets) ? raw.sets : [],
+        goals: Array.isArray(raw?.goals) ? raw.goals : [],
+        timeouts: {
+          A: Math.min(2, Math.max(0, Number(raw?.timeouts?.A) || 0)),
+          B: Math.min(2, Math.max(0, Number(raw?.timeouts?.B) || 0))
+        }
+      };
+    }
+
+    function getMatchSignature(match){
+      return JSON.stringify({
+        id: match.id,
+        tournamentId: match.tournamentId,
+        tournamentName: match.tournamentName,
+        categoryId: match.categoryId,
+        categoryName: match.categoryName,
+        roundLabel: match.roundLabel,
+        teamA: match.teamA,
+        teamB: match.teamB,
+        scoreA: match.scoreA,
+        scoreB: match.scoreB,
+        sets: match.sets,
+        goals: match.goals,
+        timeouts: match.timeouts,
+        status: match.status,
+        startedAt: match.startedAt,
+        finishedAt: match.finishedAt,
+        savedAt: match.savedAt
+      });
+    }
+
+    function slugify(value){
+      return (value || "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, "_")
+        .replace(/^_+|_+$/g, "") || "non_defini";
+    }
+
+    function syncInputsFromMatch(){
+      tournamentNameInput.value = currentMatch.tournamentName;
+      categoryNameInput.value = currentMatch.categoryName;
+      roundLabelInput.value = currentMatch.roundLabel;
+      playerAInput.value = currentMatch.teamA.name;
+      playerBInput.value = currentMatch.teamB.name;
+    }
+
+    function syncMatchMetaFromInputs(){
+      currentMatch.tournamentName = tournamentNameInput.value.trim() || "Tournoi sans nom";
+      currentMatch.categoryName = categoryNameInput.value.trim() || "Categorie sans nom";
+      currentMatch.roundLabel = roundLabelInput.value.trim() || "Tour non defini";
+      currentMatch.teamA.name = playerAInput.value.trim() || "JOUEUR A";
+      currentMatch.teamA.players = [currentMatch.teamA.name];
+      currentMatch.teamB.name = playerBInput.value.trim() || "JOUEUR B";
+      currentMatch.teamB.players = [currentMatch.teamB.name];
+      currentMatch.tournamentId = slugify(currentMatch.tournamentName);
+      currentMatch.categoryId = slugify(currentMatch.categoryName);
+    }
+
+    function getSetsWonA(){
+      return currentMatch.sets.filter(set => set.a > set.b).length;
+    }
+
+    function getSetsWonB(){
+      return currentMatch.sets.filter(set => set.b > set.a).length;
+    }
+
+    function isMatchFinished(){
+      return getSetsWonA() >= MANCHES_POUR_GAGNER || getSetsWonB() >= MANCHES_POUR_GAGNER;
+    }
+
+    function isFinalSet(){
+      return currentMatch.sets.length === 4;
+    }
+
+    function hasWonCurrentSet(playerScore, opponentScore){
+      if(!isFinalSet()){
+        return playerScore >= SCORE_NORMAL;
+      }
+      if(playerScore >= 5 && opponentScore <= 3){
+        return true;
+      }
+      if(playerScore === 8 && opponentScore === 7){
+        return true;
+      }
+      if(playerScore >= 6 && (playerScore - opponentScore) >= 2){
+        return true;
+      }
+      return false;
+    }
+
+    function updateTimeoutDisplay(){
+      timeoutAEls.forEach((el, index) => el.classList.toggle("used", index < currentMatch.timeouts.A));
+      timeoutBEls.forEach((el, index) => el.classList.toggle("used", index < currentMatch.timeouts.B));
+    }
+
+    function renderSetsHistory(){
+      if(currentMatch.sets.length === 0){
+        setsHistoryEl.innerHTML = '<div class="set-chip">Aucune manche terminee</div>';
+        return;
+      }
+
+      setsHistoryEl.innerHTML = currentMatch.sets
+        .map((set, index) => `<div class="set-chip">Manche ${index + 1} : ${set.a} - ${set.b}</div>`)
+        .join("");
+    }
+
+    function render(){
+      syncInputsFromMatch();
+      nameAEl.textContent = currentMatch.teamA.name;
+      nameBEl.textContent = currentMatch.teamB.name;
+      scoreAEl.textContent = currentMatch.scoreA;
+      scoreBEl.textContent = currentMatch.scoreB;
+      matchLineEl.textContent = `${currentMatch.tournamentName} - ${currentMatch.categoryName} - ${currentMatch.roundLabel}`;
+      setsLineEl.textContent = `Manches ${getSetsWonA()} - ${getSetsWonB()}`;
+      firebaseProjectTextEl.textContent = getFirebaseConfig().projectId;
+      updateTimeoutDisplay();
+      renderSetsHistory();
+
+      const finished = isMatchFinished();
+      goalABtn.disabled = finished;
+      goalBBtn.disabled = finished;
+      timeoutABtn.disabled = finished || currentMatch.timeouts.A >= 2;
+      timeoutBBtn.disabled = finished || currentMatch.timeouts.B >= 2;
+      saveMatchBtn.disabled = !finished;
+
+      if(finished){
+        const winner = getSetsWonA() > getSetsWonB() ? currentMatch.teamA.name : currentMatch.teamB.name;
+        setStatus(`Match termine. Vainqueur : ${winner}.`);
+      } else {
+        setStatus(`Manche en cours : ${currentMatch.scoreA} - ${currentMatch.scoreB}.`);
+      }
+    }
+
+    function persistCurrentMatch(options = {}){
+      localStorage.setItem(LOCAL_CURRENT_MATCH_KEY, JSON.stringify(currentMatch));
+      if(!options.skipLiveSync){
+        scheduleLiveSync();
+      }
+    }
+
+    function restoreCurrentMatch(){
+      const raw = localStorage.getItem(LOCAL_CURRENT_MATCH_KEY);
+      if(!raw){
+        return;
+      }
+
+      try{
+        currentMatch = normalizeMatch(JSON.parse(raw));
+      } catch(error){
+        console.error("Impossible de restaurer le match en cours", error);
+      }
+    }
+
+    function getFirebaseConfig(){
+      const projectId = localStorage.getItem(LOCAL_FIREBASE_PROJECT_ID_KEY) || "donnees-scoreboard";
+      return {
+        apiKey: "AIzaSyDaxmq1InTn2hw-Zn0vP9VCQcNT_C2DWfY",
+        authDomain: "donnees-scoreboard.firebaseapp.com",
+        projectId,
+        storageBucket: "donnees-scoreboard.firebasestorage.app",
+        messagingSenderId: "135990680324",
+        appId: "1:135990680324:web:3a3004df845276cb74ce51",
+      };
+    }
+
+    async function initFirebase(){
+      try{
+        if(firebaseApp && firestoreDb && firestoreFns){
+          return true;
+        }
+
+        const config = getFirebaseConfig();
+        const [{ initializeApp }, firestoreModule] = await Promise.all([
+          import("https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js"),
+          import("https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js")
+        ]);
+
+        firebaseApp = initializeApp(config);
+        firestoreDb = firestoreModule.getFirestore(firebaseApp);
+        firestoreFns = firestoreModule;
+        startLiveSync();
+        setSyncStatus(`Connecte a Firebase (${config.projectId})`);
+        return true;
+      } catch(error){
+        console.error(error);
+        setSyncStatus(`Erreur Firebase : ${error.message}`, true);
+        return false;
+      }
+    }
+
+    function startLiveSync(){
+      if(!firestoreDb || !firestoreFns || liveSyncUnsubscribe){
+        return;
+      }
+
+      const { doc, onSnapshot } = firestoreFns;
+      const liveRef = doc(firestoreDb, LIVE_MATCH_COLLECTION, LIVE_MATCH_DOCUMENT);
+
+      liveSyncUnsubscribe = onSnapshot(liveRef, (snapshot) => {
+        if(!snapshot.exists()){
+          scheduleLiveSync();
+          return;
+        }
+
+        const remoteMatch = normalizeMatch(snapshot.data());
+        const remoteSignature = getMatchSignature(remoteMatch);
+        lastLiveMatchSignature = remoteSignature;
+
+        if(remoteSignature === getMatchSignature(currentMatch)){
+          return;
+        }
+
+        isApplyingRemoteMatch = true;
+        currentMatch = remoteMatch;
+        render();
+        persistCurrentMatch({ skipLiveSync: true });
+        isApplyingRemoteMatch = false;
+        setSyncStatus("Match live recu depuis Firebase");
+      }, (error) => {
+        console.error(error);
+        setSyncStatus(`Sync live indisponible : ${error.message}`, true);
+      });
+    }
+
+    function scheduleLiveSync(){
+      if(isApplyingRemoteMatch){
+        return;
+      }
+
+      if(liveSyncWriteTimer){
+        clearTimeout(liveSyncWriteTimer);
+      }
+
+      liveSyncWriteTimer = setTimeout(() => {
+        pushLiveMatchState();
+      }, 120);
+    }
+
+    async function pushLiveMatchState(){
+      if(isApplyingRemoteMatch){
+        return;
+      }
+
+      const ready = await initFirebase();
+      if(!ready || !firestoreDb || !firestoreFns){
+        return;
+      }
+
+      const payload = buildMatchPayload();
+      const nextSignature = getMatchSignature(payload);
+
+      if(nextSignature === lastLiveMatchSignature){
+        return;
+      }
+
+      try{
+        const { doc, setDoc, serverTimestamp } = firestoreFns;
+        const liveRef = doc(firestoreDb, LIVE_MATCH_COLLECTION, LIVE_MATCH_DOCUMENT);
+        await setDoc(liveRef, {
+          ...payload,
+          liveUpdatedAt: new Date().toISOString(),
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+        lastLiveMatchSignature = nextSignature;
+        setSyncStatus("Match live envoye au scoreboard PC");
+      } catch(error){
+        console.error(error);
+        setSyncStatus(`Impossible d'envoyer le match : ${error.message}`, true);
+      }
+    }
+
+    async function saveMatchToFirebase(payload){
+      const ready = await initFirebase();
+      if(!ready){
+        throw new Error("Firebase n'est pas initialise.");
+      }
+
+      const { doc, collection, writeBatch, serverTimestamp } = firestoreFns;
+      const tournamentRef = doc(firestoreDb, "tournaments", payload.tournamentId);
+      const categoryRef = doc(tournamentRef, "categories", payload.categoryId);
+      const matchRef = doc(categoryRef, "matches", payload.id);
+      const batch = writeBatch(firestoreDb);
+
+      batch.set(tournamentRef, {
+        id: payload.tournamentId,
+        name: payload.tournamentName,
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+
+      batch.set(categoryRef, {
+        id: payload.categoryId,
+        name: payload.categoryName,
+        tournamentId: payload.tournamentId,
+        tournamentName: payload.tournamentName,
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+
+      batch.set(matchRef, {
+        id: payload.id,
+        tournamentId: payload.tournamentId,
+        tournamentName: payload.tournamentName,
+        categoryId: payload.categoryId,
+        categoryName: payload.categoryName,
+        roundLabel: payload.roundLabel,
+        teamA: payload.teamA,
+        teamB: payload.teamB,
+        scoreA: payload.scoreA,
+        scoreB: payload.scoreB,
+        sets: payload.sets,
+        goalsCount: payload.goalsCount,
+        timeouts: payload.timeouts,
+        setsWonA: payload.setsWonA,
+        setsWonB: payload.setsWonB,
+        winner: payload.winner,
+        goalDifference: payload.goalDifference,
+        status: payload.status,
+        startedAt: payload.startedAt,
+        finishedAt: payload.finishedAt,
+        savedAt: payload.savedAt,
+        firestoreSavedAt: serverTimestamp()
+      });
+
+      payload.goals.forEach((goal) => {
+        const goalRef = doc(collection(matchRef, "goals"), goal.id);
+        batch.set(goalRef, goal);
+      });
+
+      await batch.commit();
+    }
+
+    function buildMatchPayload(){
+      syncMatchMetaFromInputs();
+      return {
+        id: currentMatch.id,
+        tournamentId: currentMatch.tournamentId,
+        tournamentName: currentMatch.tournamentName,
+        categoryId: currentMatch.categoryId,
+        categoryName: currentMatch.categoryName,
+        roundLabel: currentMatch.roundLabel,
+        teamA: currentMatch.teamA,
+        teamB: currentMatch.teamB,
+        scoreA: currentMatch.scoreA,
+        scoreB: currentMatch.scoreB,
+        sets: currentMatch.sets,
+        goals: currentMatch.goals,
+        goalsCount: currentMatch.goals.length,
+        timeouts: currentMatch.timeouts,
+        setsWonA: getSetsWonA(),
+        setsWonB: getSetsWonB(),
+        winner: getSetsWonA() > getSetsWonB() ? currentMatch.teamA.name : currentMatch.teamB.name,
+        goalDifference: Math.abs(getSetsWonA() - getSetsWonB()),
+        status: isMatchFinished() ? "finished" : currentMatch.status,
+        startedAt: currentMatch.startedAt,
+        finishedAt: currentMatch.finishedAt,
+        savedAt: new Date().toISOString()
+      };
+    }
+
+    function saveMatchLocally(payload){
+      const savedMatches = JSON.parse(localStorage.getItem(LOCAL_SAVED_MATCHES_KEY) || "[]");
+      savedMatches.push(payload);
+      localStorage.setItem(LOCAL_SAVED_MATCHES_KEY, JSON.stringify(savedMatches));
+    }
+
+    async function saveMatchResult(){
+      if(!isMatchFinished()){
+        setStatus("Le match doit etre termine avant la sauvegarde.");
+        return;
+      }
+
+      const payload = buildMatchPayload();
+      saveMatchLocally(payload);
+
+      try{
+        await saveMatchToFirebase(payload);
+        currentMatch.savedAt = payload.savedAt;
+        persistCurrentMatch();
+        setStatus("Resultat sauvegarde dans Firestore.");
+      } catch(error){
+        console.error(error);
+        currentMatch.savedAt = payload.savedAt;
+        persistCurrentMatch();
+        setStatus(`Sauvegarde locale OK, Firebase en echec : ${error.message}`);
+      }
+    }
+
+    function resetTimeouts(){
+      currentMatch.timeouts = { A: 0, B: 0 };
+      updateTimeoutDisplay();
+    }
+
+    function recordGoal(team){
+      syncMatchMetaFromInputs();
+      currentMatch.goals.push({
+        id: createId("goal"),
+        sequence: currentMatch.goals.length + 1,
+        setNumber: currentMatch.sets.length + 1,
+        team,
+        scorer: team === "A" ? currentMatch.teamA.name : currentMatch.teamB.name,
+        scoreAAfter: currentMatch.scoreA,
+        scoreBAfter: currentMatch.scoreB,
+        type: "GOAL",
+        createdAt: new Date().toISOString()
+      });
+      persistCurrentMatch();
+    }
+
+    function recordCurrentSet(){
+      if(currentMatch.sets.length >= MANCHES_MAX){
+        return;
+      }
+
+      currentMatch.sets.push({
+        a: currentMatch.scoreA,
+        b: currentMatch.scoreB,
+        setNumber: currentMatch.sets.length + 1,
+        completedAt: new Date().toISOString()
+      });
+
+      persistCurrentMatch();
+    }
+
+    function resetScoresOnly(){
+      currentMatch.scoreA = 0;
+      currentMatch.scoreB = 0;
+      resetTimeouts();
+      persistCurrentMatch();
+    }
+
+    function finishMatch(){
+      currentMatch.status = "finished";
+      currentMatch.finishedAt = new Date().toISOString();
+      persistCurrentMatch();
+    }
+
+    function winSetA(){
+      recordCurrentSet();
+      if(isMatchFinished()){
+        finishMatch();
+      } else {
+        resetScoresOnly();
+      }
+    }
+
+    function winSetB(){
+      recordCurrentSet();
+      if(isMatchFinished()){
+        finishMatch();
+      } else {
+        resetScoresOnly();
+      }
+    }
+
+    function addGoalA(){
+      if(isMatchFinished()){
+        return;
+      }
+      if(isFinalSet() && currentMatch.scoreA >= SCORE_FINAL_SET_MAX){
+        return;
+      }
+      if(!isFinalSet() && currentMatch.scoreA >= SCORE_NORMAL){
+        return;
+      }
+
+      currentMatch.scoreA += 1;
+      recordGoal("A");
+      if(hasWonCurrentSet(currentMatch.scoreA, currentMatch.scoreB)){
+        winSetA();
+      }
+      render();
+    }
+
+    function addGoalB(){
+      if(isMatchFinished()){
+        return;
+      }
+      if(isFinalSet() && currentMatch.scoreB >= SCORE_FINAL_SET_MAX){
+        return;
+      }
+      if(!isFinalSet() && currentMatch.scoreB >= SCORE_NORMAL){
+        return;
+      }
+
+      currentMatch.scoreB += 1;
+      recordGoal("B");
+      if(hasWonCurrentSet(currentMatch.scoreB, currentMatch.scoreA)){
+        winSetB();
+      }
+      render();
+    }
+
+    function rebuildFromGoals(){
+      currentMatch.scoreA = 0;
+      currentMatch.scoreB = 0;
+      currentMatch.sets = [];
+      currentMatch.status = "in_progress";
+      currentMatch.finishedAt = null;
+      resetTimeouts();
+
+      const goalsCopy = [...currentMatch.goals].sort((a, b) => a.sequence - b.sequence);
+      currentMatch.goals = [];
+
+      for(const goal of goalsCopy){
+        if(goal.team === "A"){
+          currentMatch.scoreA += 1;
+        } else {
+          currentMatch.scoreB += 1;
+        }
+
+        currentMatch.goals.push({
+          ...goal,
+          sequence: currentMatch.goals.length + 1,
+          setNumber: currentMatch.sets.length + 1,
+          scoreAAfter: currentMatch.scoreA,
+          scoreBAfter: currentMatch.scoreB
+        });
+
+        if(hasWonCurrentSet(currentMatch.scoreA, currentMatch.scoreB)){
+          currentMatch.sets.push({
+            a: currentMatch.scoreA,
+            b: currentMatch.scoreB,
+            setNumber: currentMatch.sets.length + 1,
+            completedAt: goal.createdAt || new Date().toISOString()
+          });
+
+          if(isMatchFinished()){
+            currentMatch.status = "finished";
+            currentMatch.finishedAt = goal.createdAt || new Date().toISOString();
+            break;
+          }
+
+          currentMatch.scoreA = 0;
+          currentMatch.scoreB = 0;
+          resetTimeouts();
+        }
+      }
+    }
+
+    function undoLastGoal(){
+      if(currentMatch.goals.length === 0){
+        return;
+      }
+      currentMatch.goals.pop();
+      rebuildFromGoals();
+      persistCurrentMatch();
+      render();
+    }
+
+    function registerTimeout(team){
+      if(isMatchFinished()){
+        return;
+      }
+      if(currentMatch.timeouts[team] >= 2){
+        setStatus(`Temps morts deja utilises pour ${team}.`);
+        return;
+      }
+      currentMatch.timeouts[team] += 1;
+      persistCurrentMatch();
+      render();
+    }
+
+    function resetMatch(){
+      syncMatchMetaFromInputs();
+      currentMatch = {
+        ...createEmptyMatch(),
+        id: createId("match"),
+        tournamentId: slugify(currentMatch.tournamentName),
+        tournamentName: currentMatch.tournamentName,
+        categoryId: slugify(currentMatch.categoryName),
+        categoryName: currentMatch.categoryName,
+        roundLabel: currentMatch.roundLabel,
+        teamA: { name: currentMatch.teamA.name, players: [currentMatch.teamA.name] },
+        teamB: { name: currentMatch.teamB.name, players: [currentMatch.teamB.name] }
+      };
+      persistCurrentMatch();
+      render();
+    }
+
+    [tournamentNameInput, categoryNameInput, roundLabelInput, playerAInput, playerBInput].forEach((input) => {
+      input.addEventListener("input", () => {
+        syncMatchMetaFromInputs();
+        persistCurrentMatch();
+        render();
+      });
+    });
+
+    goalABtn.addEventListener("click", addGoalA);
+    goalBBtn.addEventListener("click", addGoalB);
+    timeoutABtn.addEventListener("click", () => registerTimeout("A"));
+    timeoutBBtn.addEventListener("click", () => registerTimeout("B"));
+    undoGoalBtn.addEventListener("click", undoLastGoal);
+    resetMatchBtn.addEventListener("click", resetMatch);
+    saveMatchBtn.addEventListener("click", saveMatchResult);
+
+    restoreCurrentMatch();
+    render();
+    initFirebase();
+  </script>
+</body>
+</html>
