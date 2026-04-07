@@ -516,6 +516,15 @@
       opacity:0.84;
     }
 
+    #mobileAccessLink{
+      display:inline-block;
+      margin-top:10px;
+      color:#ffffff;
+      font-size:13px;
+      font-weight:700;
+      text-decoration:underline;
+    }
+
     #recapPanel{
       display:none;
       width:100%;
@@ -715,6 +724,7 @@
     <div class="panel-section">
       <div><strong>Acces mobile</strong></div>
       <div id="mobileAccessHelp">Ouvre cette URL sur le telephone pour piloter le score.</div>
+      <a id="mobileAccessLink" href="#" target="_blank" rel="noopener noreferrer">Ouvrir la version mobile</a>
       <div class="mobile-access-row">
         <input id="mobileUrlInput" type="text" value="" readonly />
         <button id="copyMobileUrlBtn" class="primary">Copier</button>
@@ -840,6 +850,7 @@
     const copyMobileUrlBtn = document.getElementById("copyMobileUrlBtn");
     const mobileQrImage = document.getElementById("mobileQrImage");
     const mobileAccessHelpEl = document.getElementById("mobileAccessHelp");
+    const mobileAccessLinkEl = document.getElementById("mobileAccessLink");
     const timeoutAEls = [
       document.getElementById("timeoutA1"),
       document.getElementById("timeoutA2")
@@ -1092,6 +1103,8 @@
 
       if(mobileUrl){
         mobileUrlInput.value = mobileUrl;
+        mobileAccessLinkEl.href = mobileUrl;
+        mobileAccessLinkEl.style.display = "inline-block";
         mobileQrImage.src = `https://quickchart.io/qr?size=220&text=${encodeURIComponent(mobileUrl)}`;
         mobileQrImage.style.display = "block";
         mobileAccessHelpEl.textContent = "Scanne le QR code ou ouvre cette URL sur le telephone.";
@@ -1100,6 +1113,8 @@
       }
 
       mobileUrlInput.value = "";
+      mobileAccessLinkEl.removeAttribute("href");
+      mobileAccessLinkEl.style.display = "none";
       mobileQrImage.removeAttribute("src");
       mobileQrImage.style.display = "none";
       mobileAccessHelpEl.textContent = "La page est ouverte en fichier local. Lance un serveur HTTP sur le PC puis ouvre l'adresse reseau menant a mobile.html.";
