@@ -300,10 +300,7 @@
         grid-column:1;
         grid-row:2;
         padding:12px;
-        display:grid;
-        grid-template-columns:minmax(0, 1fr) minmax(0, 1fr);
-        gap:12px;
-        align-items:stretch;
+        display:block;
         min-height:0;
       }
 
@@ -428,13 +425,13 @@
       }
 
       .actions-panel .action-grid{
-        grid-template-columns:1fr 1fr;
-        height:100%;
+        grid-template-columns:1fr 1fr 1fr;
+        height:auto;
       }
 
       .actions-panel .action-grid .wide{
         grid-column:auto;
-        height:100%;
+        height:auto;
       }
 
       .landscape-status{
@@ -525,10 +522,10 @@
           <div class="action-grid">
             <button id="undoGoalBtn" class="dark">Annuler dernier but</button>
             <button id="saveMatchBtn" class="success">Sauvegarder resultat</button>
+            <button id="resetMatchBtn" class="danger wide">Reset match</button>
           </div>
           <div class="footer-note landscape-status">Projet Firebase utilise : <span id="firebaseProjectText">donnees-scoreboard</span></div>
         </div>
-        <button id="resetMatchBtn" class="danger wide">Reset match</button>
       </section>
     </div>
   </main>
