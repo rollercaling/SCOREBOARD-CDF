@@ -872,6 +872,7 @@
     let liveSyncWriteTimer = null;
     let isApplyingRemoteMatch = false;
     let lastLiveMatchSignature = "";
+    let lastRenderedRecapSignature = "";
 
 
     function setFirebaseStatus(text, isError = false){
@@ -1725,6 +1726,19 @@
       return `${percent}% (${made}/${total})`;
     }
 
+    function getRecapSignature(){
+      return JSON.stringify({
+        recapVisible,
+        teamAName: currentMatch.teamA.name,
+        teamBName: currentMatch.teamB.name,
+        tournamentName: currentMatch.tournamentName,
+        categoryName: currentMatch.categoryName,
+        roundLabel: currentMatch.roundLabel,
+        sets: currentMatch.sets,
+        status: currentMatch.status
+      });
+    }
+
     function computeMatchRecapStats(){
       const sortedGoals = [...currentMatch.goals].sort((a, b) => a.sequence - b.sequence);
       const stats = {
@@ -1807,8 +1821,15 @@
         recapPanelEl.innerHTML = "";
         recapPanelEl.classList.remove("show");
         toggleRecapBtn.textContent = "Afficher récap";
+        lastRenderedRecapSignature = "";
         return;
       }
+
+      const recapSignature = getRecapSignature();
+      if(recapSignature === lastRenderedRecapSignature){
+        return;
+      }
+      lastRenderedRecapSignature = recapSignature;
 
       const stats = computeMatchRecapStats();
       const currentScoreLabel = `${getSetsWonA()}-${getSetsWonB()} manches | ${currentMatch.scoreA}-${currentMatch.scoreB} buts`;
@@ -2056,24 +2077,3 @@
         const newCategory = prompt("Catégorie", currentMatch.categoryName);
         if(newCategory){
           categoryNameInput.value = newCategory;
-          renderTexts();
-        }
-      }
-      if(key === "s") saveMatchResult();
-    });
-
-    firebaseProjectIdInput.value = localStorage.getItem(LOCAL_FIREBASE_PROJECT_ID_KEY) || "donnees-scoreboard";
-
-    restoreCurrentMatch();
-    renderAll();
-    initFirebase();
-    setStatus("Version PC prete avec synchronisation live.");
-    setStatus("Version prête pour stockage : localStorage + Firestore.");
-    setFirebaseStatus("Remplis ton Project ID puis complète les clés Firebase dans getFirebaseConfig().");
-    setStatus("Version PC prÃªte avec synchronisation live.");
-    setFirebaseStatus("Connexion Firebase en cours pour le match live.");
-    setStatus("Version PC prete avec synchronisation live.");
-    setFirebaseStatus("Connexion Firebase en cours pour le match live.");
-  </script>
-</body>
-</html>
