@@ -294,7 +294,7 @@
         display:grid;
         grid-template-columns:1fr;
         grid-template-rows:1fr auto;
-        gap:10px;
+        gap:0;
         height:calc(100vh - 20px);
       }
 
@@ -310,14 +310,15 @@
         grid-column:1;
         grid-row:1;
         grid-template-columns:1fr 1fr;
-        gap:10px;
+        column-gap:10px;
+        row-gap:0;
         min-height:0;
       }
 
       .actions-panel{
         grid-column:1;
         grid-row:2;
-        padding:12px;
+        padding:0 8px 6px;
         display:block;
         min-height:0;
       }
@@ -454,7 +455,7 @@
       }
 
       .actions-panel{
-        padding:6px 8px;
+        padding:0 8px 6px;
       }
 
       .actions-main .footer-note{
