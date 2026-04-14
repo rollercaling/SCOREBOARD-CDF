@@ -873,6 +873,7 @@
     let isApplyingRemoteMatch = false;
     let lastLiveMatchSignature = "";
     let lastRenderedHistorySignature = "";
+    let lastAnimatedSetCount = 0;
 
 
     function setFirebaseStatus(text, isError = false){
@@ -1146,6 +1147,7 @@
 
         isApplyingRemoteMatch = true;
         currentMatch = remoteMatch;
+        lastAnimatedSetCount = currentMatch.sets.length;
         renderAll();
         persistCurrentMatch({ skipLiveSync: true });
         isApplyingRemoteMatch = false;
@@ -1371,6 +1373,7 @@
     }
 
     function updateHistory(){
+      const shouldAnimateNewestSet = currentMatch.sets.length > lastAnimatedSetCount;
       const setsWonA = getSetsWonA();
       const setsWonB = getSetsWonB();
       let displayedSets = currentMatch.sets.length;
@@ -1425,7 +1428,7 @@
           }
         }
 
-        if(i === currentMatch.sets.length - 1 && set){
+        if(shouldAnimateNewestSet && i === currentMatch.sets.length - 1 && set){
           cellA.classList.add("new");
           cellB.classList.add("new");
         }
@@ -1433,6 +1436,8 @@
         historyAEl.appendChild(cellA);
         historyBEl.appendChild(cellB);
       }
+
+      lastAnimatedSetCount = currentMatch.sets.length;
 
       updateScoreVisibility();
       updateMetaPanel();
@@ -1453,6 +1458,7 @@
       try{
         const parsed = JSON.parse(raw);
         currentMatch = normalizeMatch(parsed);
+        lastAnimatedSetCount = currentMatch.sets.length;
       } catch(error){
         console.error("Impossible de restaurer le match en cours", error);
       }
