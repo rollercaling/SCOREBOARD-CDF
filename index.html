@@ -1146,7 +1146,6 @@
 
         isApplyingRemoteMatch = true;
         currentMatch = remoteMatch;
-        lastRenderedHistorySignature = "";
         renderAll();
         persistCurrentMatch({ skipLiveSync: true });
         isApplyingRemoteMatch = false;
@@ -1454,7 +1453,6 @@
       try{
         const parsed = JSON.parse(raw);
         currentMatch = normalizeMatch(parsed);
-        lastRenderedHistorySignature = "";
       } catch(error){
         console.error("Impossible de restaurer le match en cours", error);
       }
