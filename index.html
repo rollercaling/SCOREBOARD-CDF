@@ -872,6 +872,7 @@
     let liveSyncWriteTimer = null;
     let isApplyingRemoteMatch = false;
     let lastLiveMatchSignature = "";
+    let lastRenderedHistorySignature = "";
 
 
     function setFirebaseStatus(text, isError = false){
@@ -1145,6 +1146,7 @@
 
         isApplyingRemoteMatch = true;
         currentMatch = remoteMatch;
+        lastRenderedHistorySignature = "";
         renderAll();
         persistCurrentMatch({ skipLiveSync: true });
         isApplyingRemoteMatch = false;
@@ -1370,9 +1372,6 @@
     }
 
     function updateHistory(){
-      historyAEl.innerHTML = "";
-      historyBEl.innerHTML = "";
-
       const setsWonA = getSetsWonA();
       const setsWonB = getSetsWonB();
       let displayedSets = currentMatch.sets.length;
@@ -1380,6 +1379,19 @@
       if(setsWonA >= MANCHES_POUR_GAGNER || setsWonB >= MANCHES_POUR_GAGNER){
         displayedSets = setsWonA + setsWonB;
       }
+
+      const historySignature = JSON.stringify({
+        sets: currentMatch.sets,
+        displayedSets
+      });
+
+      if(historySignature === lastRenderedHistorySignature){
+        return;
+      }
+      lastRenderedHistorySignature = historySignature;
+
+      historyAEl.innerHTML = "";
+      historyBEl.innerHTML = "";
 
       historyAEl.style.gridTemplateColumns = displayedSets > 0 ? `repeat(${displayedSets}, 66px)` : "none";
       historyBEl.style.gridTemplateColumns = displayedSets > 0 ? `repeat(${displayedSets}, 66px)` : "none";
@@ -1442,6 +1454,7 @@
       try{
         const parsed = JSON.parse(raw);
         currentMatch = normalizeMatch(parsed);
+        lastRenderedHistorySignature = "";
       } catch(error){
         console.error("Impossible de restaurer le match en cours", error);
       }
