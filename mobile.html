@@ -137,6 +137,18 @@
       word-break:break-word;
     }
 
+    .team-name-stack{
+      display:flex;
+      flex-direction:column;
+      align-items:flex-start;
+      gap:6px;
+      min-width:0;
+    }
+
+    .set-mini-history.left{
+      align-items:flex-start;
+    }
+
     .score{
       font-size:92px;
       line-height:0.95;
@@ -363,7 +375,7 @@
       }
 
       .team-card{
-        padding:8px 12px 8px;
+        padding:6px 10px 6px;
         display:flex;
         flex-direction:column;
         justify-content:flex-start;
@@ -380,23 +392,23 @@
 
       .team-head{
         align-items:flex-start;
-        gap:6px;
+        gap:4px;
       }
 
       .team-name{
-        font-size:20px;
+        font-size:18px;
         line-height:1;
       }
 
       .team-side{
-        gap:6px;
-        min-width:46px;
+        gap:4px;
+        min-width:42px;
       }
 
       .score{
-        font-size:118px;
-        margin:-6px 0 0;
-        line-height:0.88;
+        font-size:108px;
+        margin:-16px 0 -4px;
+        line-height:0.8;
       }
 
       .timeout-row{
@@ -405,30 +417,30 @@
       }
 
       .timeout-box{
-        width:16px;
-        height:16px;
+        width:15px;
+        height:15px;
       }
 
       .set-mini-history{
-        gap:4px;
-        min-height:98px;
+        gap:3px;
+        min-height:88px;
       }
 
       .set-mini-score{
-        min-width:28px;
-        padding:3px 6px;
-        font-size:11px;
+        min-width:26px;
+        padding:3px 5px;
+        font-size:10px;
       }
 
       .action-grid{
-        gap:6px;
-        margin-top:-2px;
+        gap:8px;
+        margin-top:-4px;
       }
 
       button{
-        min-height:40px;
-        padding:7px 9px;
-        font-size:14px;
+        min-height:46px;
+        padding:9px 10px;
+        font-size:15px;
         border-radius:12px;
       }
 
@@ -442,7 +454,7 @@
       }
 
       .actions-panel{
-        padding:8px 10px;
+        padding:6px 8px;
       }
 
       .actions-main .footer-note{
@@ -520,13 +532,15 @@
 
         <section id="teamBSection" class="team-card">
           <div class="team-head">
-            <div id="nameB" class="team-name">JOUEUR B</div>
+            <div class="team-name-stack">
+              <div id="nameB" class="team-name">JOUEUR B</div>
+              <div id="setHistoryB" class="set-mini-history left" aria-label="Recap manches joueur B"></div>
+            </div>
             <div class="team-side">
               <div class="timeout-row" aria-label="Temps morts joueur B">
                 <div id="timeoutB1" class="timeout-box"></div>
                 <div id="timeoutB2" class="timeout-box"></div>
               </div>
-              <div id="setHistoryB" class="set-mini-history" aria-label="Recap manches joueur B"></div>
             </div>
           </div>
           <div id="scoreB" class="score">0</div>
