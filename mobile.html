@@ -616,6 +616,7 @@
     let liveSyncWriteTimer = null;
     let isApplyingRemoteMatch = false;
     let lastLiveMatchSignature = "";
+    let lastRenderedSetsSignature = "";
 
     function setSyncStatus(text, isError = false){
       syncStatusEl.textContent = text;
@@ -772,6 +773,14 @@
     }
 
     function renderMiniSetHistory(){
+      const setsSignature = JSON.stringify(currentMatch.sets || []);
+
+      if(setsSignature === lastRenderedSetsSignature){
+        return;
+      }
+
+      lastRenderedSetsSignature = setsSignature;
+
       if(currentMatch.sets.length === 0){
         setHistoryAEl.innerHTML = "";
         setHistoryBEl.innerHTML = "";
@@ -827,7 +836,6 @@
       firebaseProjectTextEl.textContent = getFirebaseConfig().projectId;
       updateTimeoutDisplay();
       renderMiniSetHistory();
-      renderSetsHistory();
 
       const finished = isMatchFinished();
       goalABtn.disabled = finished;
@@ -859,6 +867,7 @@
 
       try{
         currentMatch = normalizeMatch(JSON.parse(raw));
+        lastRenderedSetsSignature = "";
       } catch(error){
         console.error("Impossible de restaurer le match en cours", error);
       }
@@ -925,6 +934,7 @@
 
         isApplyingRemoteMatch = true;
         currentMatch = remoteMatch;
+        lastRenderedSetsSignature = "";
         render();
         persistCurrentMatch({ skipLiveSync: true });
         isApplyingRemoteMatch = false;
