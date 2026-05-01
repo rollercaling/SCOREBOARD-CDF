@@ -21,13 +21,19 @@
     }
 
     .set-score.fanny-win{
-      animation:fannyWin 0.8s ease;
       background:rgba(255,255,255,0.5);
     }
 
     .set-score.fanny-lose{
-      animation:fannyLose 0.8s ease;
       background:rgba(255,80,80,0.45);
+    }
+
+    .set-score.fanny-win.new{
+      animation:fannyWin 0.8s ease;
+    }
+
+    .set-score.fanny-lose.new{
+      animation:fannyLose 0.8s ease;
     }
 
     @keyframes fannyWin{
@@ -108,7 +114,9 @@
       text-transform:uppercase;
       box-shadow:0 4px 10px rgba(0,0,0,0.18);
       box-sizing:border-box;
-      overflow:visible;
+      overflow:hidden;
+      flex:0 1 auto;
+      min-width:0;
     }
 
     #roundLogo{
@@ -118,11 +126,23 @@
       object-fit:contain;
     }
 
+    #roundBadge.logo-hidden{
+      gap:0;
+      padding-left:14px;
+    }
+
+    #roundBadge.logo-hidden #roundLogo{
+      display:none;
+    }
+
     #roundBadgeText{
       display:block;
       line-height:1;
-      flex:0 0 auto;
+      flex:1 1 auto;
+      min-width:0;
       white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
     }
 
     #topRow{
@@ -158,11 +178,30 @@
       pointer-events:none;
       white-space:nowrap;
       box-sizing:border-box;
+      flex:0 0 auto;
+      max-width:34%;
+      overflow:hidden;
+    }
+
+    #specialPointBanner:not(.show):not(.draw-badge-visible){
+      width:0;
+      min-width:0;
+      max-width:0;
+      padding:0;
+      box-shadow:none;
     }
 
     #specialPointBanner.show{
       visibility:visible;
       animation:specialBannerInOut 2.8s ease-in-out forwards;
+    }
+
+    #specialPointBanner.draw-badge-visible{
+      visibility:visible;
+      opacity:1;
+      animation:none;
+      background:#d9d9d9;
+      color:#111;
     }
 
     #specialPointText{
@@ -206,6 +245,10 @@
       grid-template-columns: var(--name-col-width) var(--separator-width) 1fr;
     }
 
+    .player-row.draw-finished{
+      grid-template-columns: var(--name-col-width) var(--separator-width) 1fr;
+    }
+
     .set-score.won{
       background:rgba(255,255,255,0.40);
     }
@@ -241,6 +284,18 @@
 
     .player-name.winner{
       color:#d9d9d9;
+    }
+
+    .player-name.draw-finish,
+    .player-score.draw-finish{
+      animation:drawFinishPulse 1.1s ease;
+    }
+
+    @keyframes drawFinishPulse{
+      0%{ transform:scale(1); opacity:1; }
+      30%{ transform:scale(1.1); opacity:0.86; }
+      60%{ transform:scale(1.04); opacity:1; }
+      100%{ transform:scale(1); opacity:1; }
     }
 
     .player-timeouts{
@@ -281,6 +336,11 @@
       grid-column:2;
     }
 
+    .player-row.draw-finished .name-score-separator{
+      display:block;
+      grid-column:2;
+    }
+
     .player-score-wrap{
       display:flex;
       align-items:center;
@@ -291,11 +351,20 @@
       min-width:var(--score-col-width);
       flex:0 0 var(--score-col-width);
       overflow:visible;
+      position:relative;
     }
 
 
     .player-row.match-finished .player-score-wrap{
       display:none;
+    }
+
+    .player-row.draw-finished .player-score-wrap{
+      display:flex;
+      grid-column:3;
+      width:100%;
+      min-width:0;
+      justify-content:center;
     }
 
     .player-score{
@@ -313,6 +382,61 @@
     .player-score.flash{
       transform:scale(1.18);
       opacity:0.82;
+    }
+
+    .score-victory-banner{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:linear-gradient(90deg, #f4d35e, #f6b73c);
+      color:#111;
+      font-size:24px;
+      font-weight:900;
+      letter-spacing:1.2px;
+      text-transform:uppercase;
+      border-radius:10px;
+      opacity:0;
+      pointer-events:none;
+      transform:translateX(118%);
+      box-shadow:0 8px 18px rgba(0,0,0,0.28);
+    }
+
+    .player-row.fun-victory .player-score-wrap{
+      grid-column:3 / 5;
+      width:100%;
+      min-width:0;
+      justify-content:center;
+    }
+
+    .player-row.fun-victory .sets-history-row{
+      display:none;
+    }
+
+    .player-score-wrap.victory-active .player-score{
+      opacity:0;
+    }
+
+    .player-score-wrap.victory-active .score-victory-banner{
+      animation:victoryScoreBanner 3.6s ease-in-out forwards;
+    }
+
+    .player-score-wrap.ko-active .player-score{
+      opacity:0;
+    }
+
+    .player-score-wrap.ko-active .score-victory-banner{
+      background:linear-gradient(90deg, #111111, #2a2a2a);
+      color:#ffffff;
+      animation:victoryScoreBanner 3.6s ease-in-out forwards;
+    }
+
+    @keyframes victoryScoreBanner{
+      0%{ opacity:0; transform:translateX(118%); }
+      12%{ opacity:1; transform:translateX(0); }
+      78%{ opacity:1; transform:translateX(0); }
+      100%{ opacity:0; transform:translateX(-118%); }
     }
 
     .score-text-hidden{
@@ -338,6 +462,10 @@
       justify-content:center;
       padding-left:0;
       width:100%;
+    }
+
+    .player-row.draw-finished .sets-history-row{
+      display:none;
     }
 
     .set-score{
@@ -404,6 +532,7 @@
       display:flex;
       flex-direction:column;
       gap:6px;
+      position:relative;
     }
 
     .field.full{
@@ -417,7 +546,8 @@
       letter-spacing:0.5px;
     }
 
-    input{
+    input,
+    select{
       width:100%;
       box-sizing:border-box;
       border:none;
@@ -426,6 +556,91 @@
       font-size:14px;
       background:#f1f1f1;
       color:#111;
+    }
+
+    textarea{
+      width:100%;
+      min-height:140px;
+      box-sizing:border-box;
+      border:none;
+      border-radius:10px;
+      padding:11px 12px;
+      font-size:14px;
+      background:#f1f1f1;
+      color:#111;
+      resize:vertical;
+      font-family:Arial, sans-serif;
+    }
+
+    .line-list-textarea{
+      white-space:pre;
+      overflow:auto;
+    }
+
+    .search-suggestions{
+      position:absolute;
+      top:100%;
+      left:0;
+      right:0;
+      margin-top:4px;
+      background:#111;
+      border:1px solid rgba(255,255,255,0.14);
+      border-radius:10px;
+      box-shadow:0 12px 28px rgba(0,0,0,0.35);
+      overflow-y:auto;
+      overflow-x:hidden;
+      overscroll-behavior:contain;
+      z-index:120;
+      display:none;
+      max-height:min(420px, 58vh);
+      scrollbar-color:#777 #111;
+      scrollbar-width:thin;
+    }
+
+    .search-suggestions::-webkit-scrollbar{
+      width:10px;
+    }
+
+    .search-suggestions::-webkit-scrollbar-track{
+      background:#111;
+      border-radius:10px;
+    }
+
+    .search-suggestions::-webkit-scrollbar-thumb{
+      background:#777;
+      border-radius:10px;
+      border:2px solid #111;
+    }
+
+    .search-suggestions.show{
+      display:block;
+    }
+
+    .suggestion-item{
+      padding:10px 12px;
+      font-size:13px;
+      line-height:1.35;
+      cursor:pointer;
+      background:#111;
+      color:white;
+    }
+
+    .suggestion-item + .suggestion-item{
+      border-top:1px solid rgba(255,255,255,0.08);
+    }
+
+    .suggestion-item:hover{
+      background:#1e1e1e;
+    }
+
+    .suggestion-title{
+      font-weight:700;
+    }
+
+    .suggestion-meta{
+      opacity:0.72;
+      font-size:12px;
+      margin-top:2px;
     }
 
     .button-row{
@@ -670,24 +885,93 @@
     <div class="field-grid">
       <div class="field full">
         <label for="tournamentNameInput">Tournoi</label>
-        <input id="tournamentNameInput" type="text" value="Tournoi du club" />
+        <select id="tournamentNameInput">
+          <option value="Tournoi du club">Tournoi du club</option>
+        </select>
+        <div id="tournamentSuggestions" class="search-suggestions" style="display:none !important;"></div>
       </div>
       <div class="field">
         <label for="categoryNameInput">Catégorie</label>
-        <input id="categoryNameInput" type="text" value="Open Simple" />
+        <select id="categoryNameInput">
+          <option value="Open Simple">Open Simple</option>
+          <option value="LIGUE 1">LIGUE 1</option>
+          <option value="LIGUE 2">LIGUE 2</option>
+          <option value="LIGUE 3">LIGUE 3</option>
+          <option value="LIGUE 4">LIGUE 4</option>
+        </select>
+        <div id="categorySuggestions" class="search-suggestions"></div>
       </div>
       <div class="field">
         <label for="roundLabelInput">Tour</label>
-        <input id="roundLabelInput" type="text" value="Finale" />
+        <select id="roundLabelInput">
+          <option value="Finale">Finale</option>
+        </select>
       </div>
-      <div class="field">
-        <label for="playerAInput">Joueur A</label>
+      <div id="playerAField" class="field">
+        <label id="playerALabel" for="playerAInput">Joueur A</label>
         <input id="playerAInput" type="text" value="TOURMANTE.A" />
+        <div id="playerASuggestions" class="search-suggestions"></div>
+      </div>
+      <div id="playerBField" class="field">
+        <label id="playerBLabel" for="playerBInput">Joueur B</label>
+        <input id="playerBInput" type="text" value="DROIT.T" />
+        <div id="playerBSuggestions" class="search-suggestions"></div>
       </div>
       <div class="field">
-        <label for="playerBInput">Joueur B</label>
-        <input id="playerBInput" type="text" value="DROIT.T" />
+        <label for="confrontationCountInput">NOMBRE CONFRONTATION</label>
+        <input id="confrontationCountInput" type="number" min="0" step="1" value="0" />
       </div>
+      <div class="field">
+        <label for="victoryPlayerAInput">VICTOIRE JOUEUR A</label>
+        <input id="victoryPlayerAInput" type="number" min="0" step="1" value="0" />
+      </div>
+      <div class="field">
+        <label for="victoryPlayerBInput">VICTOIRE JOUEUR B</label>
+        <input id="victoryPlayerBInput" type="number" min="0" step="1" value="0" />
+      </div>
+    </div>
+
+    <div id="cdfClubPanel" class="panel-section" style="display:none;">
+      <div><strong>Relais - equipes</strong></div>
+      <div style="margin-top:8px;font-size:12px;line-height:1.5;opacity:0.82;">Un relais par ligne. Le scoreboard affichera automatiquement le joueur actif selon la manche en cours.</div>
+      <div class="field-grid" style="margin-top:10px;">
+        <div class="field">
+          <label for="relayPlayersAInput">Relais équipe A</label>
+          <textarea id="relayPlayersAInput" class="line-list-textarea" wrap="off" placeholder="Joueur 1&#10;Joueur 2&#10;Joueur 3&#10;Joueur 4&#10;Joueur 5&#10;Joueur 6&#10;Joueur 7&#10;Joueur 8&#10;Joueur 9"></textarea>
+        </div>
+        <div class="field">
+          <label for="relayPlayersBInput">Relais équipe B</label>
+          <textarea id="relayPlayersBInput" class="line-list-textarea" wrap="off" placeholder="Joueur 1&#10;Joueur 2&#10;Joueur 3&#10;Joueur 4&#10;Joueur 5&#10;Joueur 6&#10;Joueur 7&#10;Joueur 8&#10;Joueur 9"></textarea>
+        </div>
+      </div>
+      <div id="cdfClubStatus" style="margin-top:10px;font-size:13px;opacity:0.9;line-height:1.5;"></div>
+    </div>
+
+    <div id="teamsPanel" class="panel-section" style="display:none;">
+      <div><strong>EQUIPE</strong></div>
+      <div style="margin-top:8px;font-size:12px;line-height:1.5;opacity:0.82;">Cree ou modifie une equipe avec 6 a 9 joueurs. Les equipes sauvegardees seront proposees dans Equipe A et Equipe B.</div>
+      <div class="field-grid" style="margin-top:10px;">
+        <div class="field">
+          <label for="teamNameInput">Nom equipe</label>
+          <input id="teamNameInput" type="text" placeholder="Nom de l'equipe" />
+          <div id="teamSuggestions" class="search-suggestions"></div>
+        </div>
+        <div class="field">
+          <label for="teamSelectInput">Equipes sauvegardees</label>
+          <select id="teamSelectInput">
+            <option value="">Aucune equipe</option>
+          </select>
+        </div>
+        <div class="field full">
+          <label for="teamPlayersTextarea">Joueurs de l'equipe</label>
+          <textarea id="teamPlayersTextarea" class="line-list-textarea" wrap="off" placeholder="Joueur 1&#10;Joueur 2&#10;Joueur 3&#10;Joueur 4&#10;Joueur 5&#10;Joueur 6&#10;Joueur 7&#10;Joueur 8&#10;Joueur 9"></textarea>
+        </div>
+      </div>
+      <div class="button-row">
+        <button id="saveTeamBtn" class="primary">Sauvegarder equipe</button>
+        <button id="reloadTeamsBtn" class="secondary">Recharger equipes</button>
+      </div>
+      <div id="teamsStatus" style="margin-top:10px;font-size:13px;opacity:0.9;line-height:1.5;"></div>
     </div>
 
     <div class="panel-section">
@@ -706,7 +990,7 @@
 
 
 
-    <div class="panel-section">
+    <div id="firebasePanel" class="panel-section">
       <div><strong>Firebase / Firestore</strong></div>
       <div class="field-grid" style="margin-top:10px;">
         <div class="field full">
@@ -719,6 +1003,34 @@
         <button id="testFirestoreBtn" class="secondary">Tester Firestore</button>
       </div>
       <div id="firebaseStatusText" style="margin-top:10px;font-size:13px;opacity:0.9;line-height:1.5;"></div>
+    </div>
+
+    <div id="playersBasePanel" class="panel-section">
+      <div><strong>Base joueurs du tournoi</strong></div>
+      <div style="margin-top:8px;font-size:12px;line-height:1.5;opacity:0.82;">Un joueur par ligne. La base suit le tournoi actuellement sÃ©lectionnÃ©.</div>
+      <div class="field" style="margin-top:10px;">
+        <label for="playersBaseTextarea">Joueurs inscrits</label>
+        <textarea id="playersBaseTextarea" placeholder="Exemple&#10;TOURMANTE.A&#10;DROIT.T&#10;DUPONT.M"></textarea>
+      </div>
+      <div class="button-row">
+        <button id="savePlayersBaseBtn" class="primary">Sauvegarder base joueurs</button>
+        <button id="reloadPlayersBaseBtn" class="secondary">Recharger depuis Firebase</button>
+      </div>
+      <div class="field" style="margin-top:10px;">
+        <label for="rankingsFileInput">Fichier classements Joueur CDF</label>
+        <input id="rankingsFileInput" type="file" accept=".xlsx,.xls" />
+      </div>
+      <div class="button-row">
+        <button id="applyRankingsBtn" class="secondary">Affecter classements aux joueurs</button>
+      </div>
+      <div class="field" style="margin-top:10px;">
+        <label for="photosBaseUrlInput">Dossier photos joueurs</label>
+        <input id="photosBaseUrlInput" type="text" value="http://localhost:8000/PHOTOS%20JOUEURS/" />
+      </div>
+      <div class="button-row">
+        <button id="applyPhotosBtn" class="secondary">Affecter photos aux joueurs</button>
+      </div>
+      <div id="playersBaseStatus" style="margin-top:10px;font-size:13px;opacity:0.9;line-height:1.5;"></div>
     </div>
 
     <div class="panel-section">
@@ -773,6 +1085,7 @@
 
             <div class="player-score-wrap">
               <div id="scoreA" class="player-score">0</div>
+              <div id="victoryBannerA" class="score-victory-banner">VICTOIRE</div>
             </div>
 
             <div id="historyA" class="sets-history-row"></div>
@@ -791,6 +1104,7 @@
 
             <div class="player-score-wrap">
               <div id="scoreB" class="player-score">0</div>
+              <div id="victoryBannerB" class="score-victory-banner">VICTOIRE</div>
             </div>
 
             <div id="historyB" class="sets-history-row"></div>
@@ -805,14 +1119,117 @@
     const SCORE_FINAL_SET_MAX = 8;
     const MANCHES_MAX = 5;
     const MANCHES_POUR_GAGNER = 3;
+    const CDF_CLUB_CATEGORIES = ["LIGUE 1", "LIGUE 2", "LIGUE 3", "LIGUE 4"];
+    const CDF_INDIV_CATEGORIES = [
+      "Double Masculin",
+      "Grande Finale de la Coupe de France",
+      "Simple Masculin - Pro/Expert",
+      "Double Mixte",
+      "Double Mixte Vétéran",
+      "CDF des Clubs Vétéran",
+      "Goalie War",
+      "Forward Shootout",
+      "Double Féminin",
+      "Double Vétéran O50",
+      "Double Vétéran O63",
+      "Simple Junior U19",
+      "Simple Junior U16",
+      "Simple Junior U13",
+      "Double Junior U19",
+      "Double Junior U16",
+      "Double Junior U13",
+      "CDF des Clubs Junior",
+      "CDF des Clubs Féminin",
+      "Simple Masculin - Confirmé/Amateur",
+      "Simple Masculin - Novice",
+      "Simple Féminin",
+      "Simple Féminin Vétéran",
+      "Simple Vétéran O50",
+      "Simple Vétéran O63"
+    ].sort((a, b) => a.localeCompare(b, "fr", { sensitivity: "base" }));
+    const CDF_CLUB_ROUNDS = [
+      "",
+      "TOUR 1",
+      "TOUR 2",
+      "TOUR 3",
+      "TOUR 4",
+      "TOUR 5",
+      "TOUR 6",
+      "TOUR 7",
+      "TOUR 8",
+      "TOUR 9",
+      "TOUR 10",
+      "TOUR 11",
+      "TOUR 12"
+    ];
+    const CDF_INDIV_ROUNDS = [
+      "",
+      "QUALIF TOUR 1",
+      "QUALIF TOUR 2",
+      "QUALIF TOUR 3",
+      "QUALIF TOUR 4",
+      "64ème DE FINAL",
+      "32ème DE FINAL",
+      "16ème DE FINAL",
+      "8ème DE FINAL",
+      "QUART DE FINAL",
+      "DEMI FINAL",
+      "FINAL"
+    ];
+    const CDF_INDIV_SHORT_MATCH_CATEGORIES = [
+      "Double Mixte",
+      "Simple Junior U13",
+      "Simple Junior U16",
+      "Simple Junior U19",
+      "Double Junior U13",
+      "Double Junior U16",
+      "Double Junior U19"
+    ];
+    const CDF_INDIV_QUALIF_ROUNDS = [
+      "QUALIF TOUR 1",
+      "QUALIF TOUR 2",
+      "QUALIF TOUR 3",
+      "QUALIF TOUR 4"
+    ];
+    const CDF_INDIV_MIXTE_MAIN_DRAW_ROUNDS = [
+      "64ème DE FINAL",
+      "32ème DE FINAL",
+      "16ème DE FINAL",
+      "8ème DE FINAL",
+      "QUART DE FINAL"
+    ];
+    const GRANDE_FINALE_RELAY_TEAMS = {
+      A: "Les RAPTORS",
+      B: "SALEILLES"
+    };
+    const GRANDE_FINALE_RELAY_DEFAULT_PLAYERS = {
+      B: [
+        "El Hamdioui Karim",
+        "Pinheiro Joaquim",
+        "Blanchard Jean-Marie",
+        "Noel Anais",
+        "Travers Frederic",
+        "Merceron Stephane",
+        "Dolci Matteo",
+        "Delucq David",
+        "Bessam Kacem"
+      ]
+    };
     const LOCAL_CURRENT_MATCH_KEY = "babyfoot_current_match_v2";
     const LOCAL_SAVED_MATCHES_KEY = "babyfoot_saved_matches_v2";
     const LOCAL_FIREBASE_PROJECT_ID_KEY = "babyfoot_firebase_project_id_v1";
+    const LOCAL_PHOTOS_BASE_URL_KEY = "babyfoot_photos_base_url_v1";
     const LIVE_MATCH_COLLECTION = "scoreboard_live";
     const LIVE_MATCH_DOCUMENT = "current_match";
 
     const scoreAEl = document.getElementById("scoreA");
     const scoreBEl = document.getElementById("scoreB");
+    const scoreWrapAEl = scoreAEl.parentElement;
+    const scoreWrapBEl = scoreBEl.parentElement;
+    const playerRowAEl = scoreWrapAEl.closest(".player-row");
+    const playerRowBEl = scoreWrapBEl.closest(".player-row");
+    const victoryBannerAEl = document.getElementById("victoryBannerA");
+    const victoryBannerBEl = document.getElementById("victoryBannerB");
     const nameAEl = document.getElementById("nameA");
     const nameBEl = document.getElementById("nameB");
     const roundBadgeTextEl = document.getElementById("roundBadgeText");
@@ -823,6 +1240,7 @@
     const boardColumnEl = document.getElementById("boardColumn");
     const topRowEl = document.getElementById("topRow");
     const roundBadgeEl = document.getElementById("roundBadge");
+    const roundLogoEl = document.getElementById("roundLogo");
     const specialPointTextEl = document.getElementById("specialPointText");
     const fannyBadgeEl = document.getElementById("fannyBadge");
 
@@ -831,6 +1249,29 @@
     const roundLabelInput = document.getElementById("roundLabelInput");
     const playerAInput = document.getElementById("playerAInput");
     const playerBInput = document.getElementById("playerBInput");
+    const confrontationCountInput = document.getElementById("confrontationCountInput");
+    const victoryPlayerAInput = document.getElementById("victoryPlayerAInput");
+    const victoryPlayerBInput = document.getElementById("victoryPlayerBInput");
+    const playerAFieldEl = document.getElementById("playerAField");
+    const playerBFieldEl = document.getElementById("playerBField");
+    const playerALabelEl = document.getElementById("playerALabel");
+    const playerBLabelEl = document.getElementById("playerBLabel");
+    const tournamentSuggestionsEl = document.getElementById("tournamentSuggestions");
+    const categorySuggestionsEl = document.getElementById("categorySuggestions");
+    const playerASuggestionsEl = document.getElementById("playerASuggestions");
+    const playerBSuggestionsEl = document.getElementById("playerBSuggestions");
+    const cdfClubPanelEl = document.getElementById("cdfClubPanel");
+    const relayPlayersAInput = document.getElementById("relayPlayersAInput");
+    const relayPlayersBInput = document.getElementById("relayPlayersBInput");
+    const cdfClubStatusEl = document.getElementById("cdfClubStatus");
+    const teamsPanelEl = document.getElementById("teamsPanel");
+    const teamNameInput = document.getElementById("teamNameInput");
+    const teamSelectInput = document.getElementById("teamSelectInput");
+    const teamPlayersTextarea = document.getElementById("teamPlayersTextarea");
+    const teamSuggestionsEl = document.getElementById("teamSuggestions");
+    const saveTeamBtn = document.getElementById("saveTeamBtn");
+    const reloadTeamsBtn = document.getElementById("reloadTeamsBtn");
+    const teamsStatusEl = document.getElementById("teamsStatus");
     const saveMatchBtn = document.getElementById("saveMatchBtn");
     const exportCurrentBtn = document.getElementById("exportCurrentBtn");
     const undoGoalBtn = document.getElementById("undoGoalBtn");
@@ -846,6 +1287,14 @@
     const initFirebaseBtn = document.getElementById("initFirebaseBtn");
     const testFirestoreBtn = document.getElementById("testFirestoreBtn");
     const firebaseStatusTextEl = document.getElementById("firebaseStatusText");
+    const playersBaseTextarea = document.getElementById("playersBaseTextarea");
+    const savePlayersBaseBtn = document.getElementById("savePlayersBaseBtn");
+    const reloadPlayersBaseBtn = document.getElementById("reloadPlayersBaseBtn");
+    const rankingsFileInput = document.getElementById("rankingsFileInput");
+    const applyRankingsBtn = document.getElementById("applyRankingsBtn");
+    const photosBaseUrlInput = document.getElementById("photosBaseUrlInput");
+    const applyPhotosBtn = document.getElementById("applyPhotosBtn");
+    const playersBaseStatusEl = document.getElementById("playersBaseStatus");
     const mobileUrlInput = document.getElementById("mobileUrlInput");
     const copyMobileUrlBtn = document.getElementById("copyMobileUrlBtn");
     const mobileQrImage = document.getElementById("mobileQrImage");
@@ -864,6 +1313,8 @@
 
     let lastSpecialState = "";
     let currentMatch = createEmptyMatch();
+    let victoryAnimationTeam = null;
+    let victoryAnimationTimer = null;
     let firebaseApp = null;
     let firestoreDb = null;
     let firestoreFns = null;
@@ -874,6 +1325,15 @@
     let lastLiveMatchSignature = "";
     let lastRenderedHistorySignature = "";
     let lastAnimatedSetCount = 0;
+    let lastShownFannySetSignature = "";
+    let lastSaveStatusAt = 0;
+    let isSavingMatchResult = false;
+    let tournamentsCatalog = [];
+    let currentTournamentPlayers = [];
+    let categoriesCatalog = [];
+    let currentCategoryPlayers = [];
+    let currentCategoryPlayerRecords = [];
+    let currentCategoryTeams = [];
 
 
     function setFirebaseStatus(text, isError = false){
@@ -922,6 +1382,8 @@
         firestoreDb = firestoreModule.getFirestore(firebaseApp);
         firestoreFns = firestoreModule;
         startLiveSync();
+        loadTournamentsCatalog().then(() => refreshTournamentOptions());
+        loadPlayersBaseForCategory(currentMatch.tournamentId, currentMatch.categoryId);
         setFirebaseStatus(`Firebase connecté sur ${config.projectId}.`);
         return true;
       } catch(error){
@@ -959,6 +1421,11 @@
       const tournamentRef = doc(firestoreDb, 'tournaments', payload.tournamentId);
       const categoryRef = doc(tournamentRef, 'categories', payload.categoryId);
       const matchRef = doc(categoryRef, 'matches', payload.id);
+      const teamAPlayers = getTeamPlayersForPayload(payload.teamA);
+      const teamBPlayers = getTeamPlayersForPayload(payload.teamB);
+      const teamAPlayerIds = teamAPlayers.map((playerName) => slugify(playerName));
+      const teamBPlayerIds = teamBPlayers.map((playerName) => slugify(playerName));
+      const firestorePaths = getSavedMatchFirestorePaths(payload);
 
       const batch = writeBatch(firestoreDb);
 
@@ -983,8 +1450,14 @@
         categoryId: payload.categoryId,
         categoryName: payload.categoryName,
         roundLabel: payload.roundLabel,
+        firestorePath: firestorePaths.matchPath,
+        playerMatchPaths: firestorePaths.playerMatchPaths,
         teamA: payload.teamA,
         teamB: payload.teamB,
+        teamAPlayerIds,
+        teamBPlayerIds,
+        headToHead: payload.headToHead,
+        relayPlayers: payload.relayPlayers,
         scoreA: payload.scoreA,
         scoreB: payload.scoreB,
         sets: payload.sets,
@@ -1007,6 +1480,109 @@
       });
 
       await batch.commit();
+
+      try{
+        const playerLinksBatch = writeBatch(firestoreDb);
+        saveMatchLinksForPlayers({
+          batch: playerLinksBatch,
+          doc,
+          collection,
+          categoryRef,
+          payload,
+          teamAPlayers,
+          teamBPlayers,
+          serverTimestamp
+        });
+        await playerLinksBatch.commit();
+        return {
+          ...firestorePaths,
+          playerLinksSaved: true,
+          playerLinksError: ""
+        };
+      } catch(error){
+        console.error("Match sauvegarde, mais liaison joueurs refusee :", error);
+        return {
+          ...firestorePaths,
+          playerLinksSaved: false,
+          playerLinksError: error.message
+        };
+      }
+    }
+
+    function getTeamPlayersForPayload(team){
+      const players = Array.isArray(team?.players) && team.players.length
+        ? team.players
+        : [team?.name];
+
+      return [...new Set(
+        players
+          .map((playerName) => String(playerName || "").trim())
+          .filter(Boolean)
+      )];
+    }
+
+    function getSavedMatchFirestorePaths(payload){
+      const tournamentId = payload.tournamentId;
+      const categoryId = payload.categoryId;
+      const matchId = payload.id;
+      const categoryPath = `tournaments/${tournamentId}/categories/${categoryId}`;
+      const playerNames = [
+        ...getTeamPlayersForPayload(payload.teamA),
+        ...getTeamPlayersForPayload(payload.teamB)
+      ];
+      const playerIds = [...new Set(playerNames.map((playerName) => slugify(playerName)))];
+
+      return {
+        matchPath: `${categoryPath}/matches/${matchId}`,
+        playerMatchPaths: playerIds.map((playerId) => `${categoryPath}/players/${playerId}/matches/${matchId}`)
+      };
+    }
+
+    function saveMatchLinksForPlayers({ batch, doc, collection, categoryRef, payload, teamAPlayers, teamBPlayers, serverTimestamp }){
+      const winnerSide = payload.winner === "A" || payload.winner === "B" ? payload.winner : "";
+      const writePlayerLinks = (players, side, opponents) => {
+        players.forEach((playerName) => {
+          const playerId = slugify(playerName);
+          const playerRef = doc(categoryRef, "players", playerId);
+          const playerMatchRef = doc(collection(playerRef, "matches"), payload.id);
+
+          batch.set(playerRef, {
+            id: playerId,
+            name: playerName,
+            normalizedName: normalizeSearch(playerName).replace(/\s+/g, " "),
+            updatedAt: serverTimestamp()
+          }, { merge: true });
+
+          batch.set(playerMatchRef, {
+            id: payload.id,
+            tournamentId: payload.tournamentId,
+            tournamentName: payload.tournamentName,
+            categoryId: payload.categoryId,
+            categoryName: payload.categoryName,
+            roundLabel: payload.roundLabel,
+            side,
+            playerName,
+            teamName: side === "A" ? payload.teamA?.name : payload.teamB?.name,
+            teamPlayers: side === "A" ? teamAPlayers : teamBPlayers,
+            opponentName: side === "A" ? payload.teamB?.name : payload.teamA?.name,
+            opponentPlayers: opponents,
+            scoreFor: side === "A" ? payload.setsWonA : payload.setsWonB,
+            scoreAgainst: side === "A" ? payload.setsWonB : payload.setsWonA,
+            sets: payload.sets,
+            goalsCount: payload.goalsCount,
+            winner: payload.winner,
+            result: winnerSide ? (winnerSide === side ? "win" : "loss") : "draw",
+            status: payload.status,
+            startedAt: payload.startedAt,
+            finishedAt: payload.finishedAt,
+            savedAt: payload.savedAt,
+            firestoreSavedAt: serverTimestamp()
+          }, { merge: true });
+        });
+      };
+
+      writePlayerLinks(teamAPlayers, "A", teamBPlayers);
+      writePlayerLinks(teamBPlayers, "B", teamAPlayers);
     }
 
     function createId(prefix){
@@ -1029,10 +1605,19 @@
           name: "DROIT.T",
           players: ["DROIT.T"]
         },
+        headToHead: {
+          confrontations: 0,
+          victoryA: 0,
+          victoryB: 0
+        },
         scoreA: 0,
         scoreB: 0,
         sets: [],
         goals: [],
+        relayPlayers: {
+          A: ["", "", "", "", "", "", "", "", ""],
+          B: ["", "", "", "", "", "", "", "", ""]
+        },
         timeouts: {
           A: 0,
           B: 0
@@ -1042,6 +1627,11 @@
         finishedAt: null,
         savedAt: null
       };
+    }
+
+    function toNonNegativeInteger(value){
+      const parsed = Number.parseInt(value, 10);
+      return Number.isFinite(parsed) ? Math.max(0, parsed) : 0;
     }
 
     function normalizeMatch(raw){
@@ -1056,6 +1646,15 @@
         teamB: {
           name: raw?.teamB?.name || fallback.teamB.name,
           players: Array.isArray(raw?.teamB?.players) && raw.teamB.players.length ? raw.teamB.players : [raw?.teamB?.name || fallback.teamB.name]
+        },
+        headToHead: {
+          confrontations: toNonNegativeInteger(raw?.headToHead?.confrontations ?? raw?.confrontationCount),
+          victoryA: toNonNegativeInteger(raw?.headToHead?.victoryA ?? raw?.victoryPlayerA),
+          victoryB: toNonNegativeInteger(raw?.headToHead?.victoryB ?? raw?.victoryPlayerB)
+        },
+        relayPlayers: {
+          A: Array.isArray(raw?.relayPlayers?.A) ? [...raw.relayPlayers.A, "", "", "", "", "", "", "", "", ""].slice(0, 9) : [...fallback.relayPlayers.A],
+          B: Array.isArray(raw?.relayPlayers?.B) ? [...raw.relayPlayers.B, "", "", "", "", "", "", "", "", ""].slice(0, 9) : [...fallback.relayPlayers.B]
         },
         sets: Array.isArray(raw?.sets) ? raw.sets : [],
         goals: Array.isArray(raw?.goals) ? raw.goals : [],
@@ -1076,6 +1675,8 @@
         roundLabel: match.roundLabel,
         teamA: match.teamA,
         teamB: match.teamB,
+        headToHead: match.headToHead,
+        relayPlayers: match.relayPlayers,
         scoreA: match.scoreA,
         scoreB: match.scoreB,
         sets: match.sets,
@@ -1148,10 +1749,13 @@
         isApplyingRemoteMatch = true;
         currentMatch = remoteMatch;
         lastAnimatedSetCount = currentMatch.sets.length;
+        lastShownFannySetSignature = "";
         renderAll();
         persistCurrentMatch({ skipLiveSync: true });
         isApplyingRemoteMatch = false;
-        setStatus("Match en cours synchronisÃ© depuis Firebase.");
+        if(Date.now() - lastSaveStatusAt > 8000){
+          setStatus("Match en cours synchronisé depuis Firebase.");
+        }
       }, (error) => {
         console.error(error);
         setFirebaseStatus(`Sync live indisponible : ${error.message}`, true);
@@ -1213,24 +1817,1500 @@
         .replace(/^_+|_+$/g, "") || "non_defini";
     }
 
+    function normalizeSearch(value){
+      return (value || "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .trim();
+    }
+
+    function normalizeRankingLookupKey(value){
+      return normalizeSearch(value).replace(/[^a-z0-9]/g, "");
+    }
+
+    function normalizePlayerCode(value){
+      return normalizeSearch(value).replace(/\s+/g, "");
+    }
+
+    function normalizePhotoFileStem(playerName){
+      return String(playerName || "")
+        .trim()
+        .replace(/[\\/:*?"<>|]/g, "")
+        .replace(/\s+/g, " ");
+    }
+
+    function getPhotosBaseUrl(){
+      const rawBaseUrl = (photosBaseUrlInput.value || "").trim() || "http://localhost:8000/PHOTOS%20JOUEURS/";
+      return rawBaseUrl.endsWith("/") ? rawBaseUrl : `${rawBaseUrl}/`;
+    }
+
+    function buildPhotoUrlCandidates(playerName){
+      const stem = normalizePhotoFileStem(playerName);
+      if(!stem){
+        return [];
+      }
+
+      const baseUrl = getPhotosBaseUrl();
+      const stems = [...new Set([
+        stem,
+        stem.toUpperCase(),
+        stem.toLowerCase()
+      ])];
+      const extensions = ["png", "jpg", "jpeg", "jfif", "webp", "PNG", "JPG", "JPEG", "JFIF", "WEBP"];
+
+      return stems.flatMap((fileStem) => extensions.map((extension) => `${baseUrl}${encodeURIComponent(fileStem)}.${extension}`));
+    }
+
+    function imageUrlExists(url){
+      return new Promise((resolve) => {
+        const image = new Image();
+        image.onload = () => resolve(true);
+        image.onerror = () => resolve(false);
+        image.src = `${url}${url.includes("?") ? "&" : "?"}v=${Date.now()}`;
+      });
+    }
+
+    async function findPhotoUrlForPlayer(playerName){
+      const candidates = buildPhotoUrlCandidates(playerName);
+      for(const url of candidates){
+        if(await imageUrlExists(url)){
+          return url;
+        }
+      }
+      return "";
+    }
+
+    function readUint16(view, offset){
+      return view.getUint16(offset, true);
+    }
+
+    function readUint32(view, offset){
+      return view.getUint32(offset, true);
+    }
+
+    async function inflateXlsxEntry(compressedBytes, method){
+      if(method === 0){
+        return compressedBytes;
+      }
+
+      if(method !== 8){
+        throw new Error(`Compression XLSX non supportee : ${method}`);
+      }
+
+      if(!("DecompressionStream" in window)){
+        throw new Error("Ton navigateur ne supporte pas la lecture XLSX locale. Essaie avec Chrome ou Edge.");
+      }
+
+      const stream = new Blob([compressedBytes]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
+      return new Uint8Array(await new Response(stream).arrayBuffer());
+    }
+
+    async function readXlsxEntries(file){
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      const view = new DataView(bytes.buffer);
+      const decoder = new TextDecoder("utf-8");
+      const entries = new Map();
+
+      for(let offset = 0; offset <= bytes.length - 30; offset += 1){
+        if(readUint32(view, offset) !== 0x04034b50){
+          continue;
+        }
+
+        const method = readUint16(view, offset + 8);
+        const compressedSize = readUint32(view, offset + 18);
+        const fileNameLength = readUint16(view, offset + 26);
+        const extraLength = readUint16(view, offset + 28);
+        const nameStart = offset + 30;
+        const nameEnd = nameStart + fileNameLength;
+        const dataStart = nameEnd + extraLength;
+        const dataEnd = dataStart + compressedSize;
+
+        if(compressedSize <= 0 || dataEnd > bytes.length){
+          continue;
+        }
+
+        const fileName = decoder.decode(bytes.slice(nameStart, nameEnd));
+        const compressedBytes = bytes.slice(dataStart, dataEnd);
+        const contentBytes = await inflateXlsxEntry(compressedBytes, method);
+        entries.set(fileName, decoder.decode(contentBytes));
+        offset = dataEnd - 1;
+      }
+
+      return entries;
+    }
+
+    function parseXml(text){
+      const xml = new DOMParser().parseFromString(text, "application/xml");
+      const parserError = xml.querySelector("parsererror");
+      if(parserError){
+        throw new Error("Impossible de lire une feuille du fichier XLSX.");
+      }
+      return xml;
+    }
+
+    function getXmlChildren(parent, localName){
+      return [...parent.getElementsByTagName("*")].filter((node) => node.localName === localName);
+    }
+
+    function getSharedStrings(entries){
+      const sharedXml = entries.get("xl/sharedStrings.xml");
+      if(!sharedXml){
+        return [];
+      }
+
+      return getXmlChildren(parseXml(sharedXml), "si").map((item) => {
+        return getXmlChildren(item, "t").map((node) => node.textContent || "").join("");
+      });
+    }
+
+    function getColumnIndex(cellRef){
+      const letters = String(cellRef || "A").match(/[A-Z]+/)?.[0] || "A";
+      return [...letters].reduce((total, char) => total * 26 + char.charCodeAt(0) - 64, 0) - 1;
+    }
+
+    function getCellValue(cell, sharedStrings){
+      const type = cell.getAttribute("t");
+      if(type === "inlineStr"){
+        return getXmlChildren(cell, "t").map((node) => node.textContent || "").join("");
+      }
+
+      const valueNode = getXmlChildren(cell, "v")[0];
+      const rawValue = valueNode?.textContent || "";
+      if(type === "s"){
+        return sharedStrings[Number(rawValue)] || "";
+      }
+      return rawValue;
+    }
+
+    function readWorksheetRows(entries, sheetPath, sharedStrings){
+      const sheetXml = entries.get(sheetPath);
+      if(!sheetXml){
+        return [];
+      }
+
+      return getXmlChildren(parseXml(sheetXml), "row").map((row) => {
+        const values = [];
+        getXmlChildren(row, "c").forEach((cell) => {
+          const index = getColumnIndex(cell.getAttribute("r"));
+          values[index] = getCellValue(cell, sharedStrings);
+        });
+        return values.map((value) => value || "");
+      });
+    }
+
+    function getWorkbookSheets(entries){
+      const workbookXml = entries.get("xl/workbook.xml");
+      const relsXml = entries.get("xl/_rels/workbook.xml.rels");
+      if(!workbookXml || !relsXml){
+        throw new Error("Le fichier ne contient pas les feuilles Excel attendues.");
+      }
+
+      const relationships = new Map();
+      getXmlChildren(parseXml(relsXml), "Relationship").forEach((relation) => {
+        relationships.set(relation.getAttribute("Id"), relation.getAttribute("Target"));
+      });
+
+      return getXmlChildren(parseXml(workbookXml), "sheet").map((sheet) => {
+        const relationId = sheet.getAttribute("r:id") || sheet.getAttributeNS("http://schemas.openxmlformats.org/officeDocument/2006/relationships", "id");
+        const target = relationships.get(relationId) || "";
+        return {
+          name: sheet.getAttribute("name") || "",
+          path: target.startsWith("/") ? target.slice(1) : `xl/${target}`
+        };
+      });
+    }
+
+    function buildRankingsFromWorkbookRows(sheets, rowsBySheet){
+      const codeByFullName = new Map();
+      const rankingsByCode = new Map();
+      const playerSheets = sheets.filter((sheet) => !normalizeSearch(sheet.name).startsWith("classement"));
+
+      playerSheets.forEach((sheet) => {
+        (rowsBySheet.get(sheet.name) || []).forEach((row) => {
+          const fullName = row[0];
+          const playerCode = [...row].reverse().find((value) => String(value || "").includes("."));
+          if(fullName && playerCode){
+            codeByFullName.set(normalizeRankingLookupKey(fullName), String(playerCode).trim());
+          }
+        });
+      });
+
+      const rankingSheets = [
+        { sheetName: "classement general", field: "general" },
+        { sheetName: "classement simple", field: "simple" },
+        { sheetName: "classement double", field: "double" }
+      ];
+
+      rankingSheets.forEach(({ sheetName, field }) => {
+        const sheet = sheets.find((candidate) => normalizeSearch(candidate.name) === sheetName);
+        if(!sheet){
+          return;
+        }
+
+        (rowsBySheet.get(sheet.name) || []).forEach((row) => {
+          const rank = String(row[0] || "").trim();
+          const fullName = row[1];
+          const playerCode = codeByFullName.get(normalizeRankingLookupKey(fullName));
+          if(!rank || !fullName || !playerCode){
+            return;
+          }
+
+          const normalizedCode = normalizePlayerCode(playerCode);
+          const current = rankingsByCode.get(normalizedCode) || { general: "", simple: "", double: "" };
+          current[field] = rank;
+          rankingsByCode.set(normalizedCode, current);
+        });
+      });
+
+      return rankingsByCode;
+    }
+
+    async function readRankingsWorkbook(file){
+      const entries = await readXlsxEntries(file);
+      const sheets = getWorkbookSheets(entries);
+      const sharedStrings = getSharedStrings(entries);
+      const rowsBySheet = new Map();
+
+      sheets.forEach((sheet) => {
+        rowsBySheet.set(sheet.name, readWorksheetRows(entries, sheet.path, sharedStrings));
+      });
+
+      return buildRankingsFromWorkbookRows(sheets, rowsBySheet);
+    }
+
+    function isCdfClubMode(){
+      return normalizeSearch(currentMatch.tournamentName) === "cdf club";
+    }
+
+    function isGrandeFinaleRelayMode(){
+      return isCdfIndivMode() && currentMatch.categoryName === "Grande Finale de la Coupe de France";
+    }
+
+    function isRelayRaceMode(){
+      return isCdfClubMode() || isGrandeFinaleRelayMode();
+    }
+
+    function usesTeamCatalogForContestants(){
+      return isCdfClubMode() || isGrandeFinaleRelayMode();
+    }
+
+    function isCdfIndivMode(){
+      return normalizeSearch(currentMatch.tournamentName) === "cdf indiv";
+    }
+
+    function isCdfIndivShortMatchMode(){
+      if(!isCdfIndivMode()){
+        return false;
+      }
+
+      return CDF_INDIV_SHORT_MATCH_CATEGORIES.includes(currentMatch.categoryName)
+        && CDF_INDIV_QUALIF_ROUNDS.includes(currentMatch.roundLabel);
+    }
+
+    function isCdfIndivQualifStandardMode(){
+      if(!isCdfIndivMode()){
+        return false;
+      }
+
+      return !CDF_INDIV_SHORT_MATCH_CATEGORIES.includes(currentMatch.categoryName)
+        && CDF_INDIV_QUALIF_ROUNDS.includes(currentMatch.roundLabel);
+    }
+
+    function isCdfIndivDoubleMixteMainDrawMode(){
+      return isCdfIndivMode()
+        && currentMatch.categoryName === "Double Mixte"
+        && CDF_INDIV_MIXTE_MAIN_DRAW_ROUNDS.includes(currentMatch.roundLabel);
+    }
+
+    function isShootoutMode(){
+      return isCdfIndivMode()
+        && ["Forward Shootout", "Goalie War"].includes(currentMatch.categoryName);
+    }
+
+    function getSetsNeededToWinMatch(){
+      if(isRelayRaceMode()){
+        return getRelayTargets().length;
+      }
+      if(isShootoutMode()){
+        return 1;
+      }
+      if(isCdfIndivShortMatchMode()){
+        return 1;
+      }
+      if(isCdfIndivQualifStandardMode() || isCdfIndivDoubleMixteMainDrawMode()){
+        return 2;
+      }
+      return MANCHES_POUR_GAGNER;
+    }
+
+    function isShortMatchDraw(){
+      return isCdfIndivShortMatchMode() && currentMatch.scoreA === 7 && currentMatch.scoreB === 7;
+    }
+
+    function isRelayRaceDraw(){
+      return isGrandeFinaleRelayMode() && currentMatch.scoreA === 29 && currentMatch.scoreB === 29;
+    }
+
+    function isDrawMatchFinished(){
+      return isShortMatchDraw() || isRelayRaceDraw();
+    }
+
+    function getDecidingSetCompletedCount(){
+      if(isCdfIndivQualifStandardMode() || isCdfIndivDoubleMixteMainDrawMode()){
+        return 2;
+      }
+      return 4;
+    }
+
+    function setSelectOptions(selectEl, options, preferredValue = ""){
+      const currentValue = preferredValue || selectEl.value;
+      selectEl.innerHTML = options
+        .map((option) => `<option value="${escapeHtml(option)}">${escapeHtml(option)}</option>`)
+        .join("");
+
+      if(options.includes(currentValue)){
+        selectEl.value = currentValue;
+      } else if(options.length){
+        selectEl.value = options[0];
+      }
+    }
+
+    function getCategoryOptionsForTournament(){
+      if(isCdfClubMode()){
+        return CDF_CLUB_CATEGORIES;
+      }
+      if(isCdfIndivMode()){
+        return CDF_INDIV_CATEGORIES;
+      }
+      return ["Open Simple"];
+    }
+
+    function getRoundOptionsForTournament(){
+      if(isCdfClubMode()){
+        return CDF_CLUB_ROUNDS;
+      }
+      if(isCdfIndivMode()){
+        return CDF_INDIV_ROUNDS;
+      }
+      return ["", "Finale"];
+    }
+
+    function syncTournamentDependentSelects(preferredCategory = currentMatch.categoryName, preferredRound = currentMatch.roundLabel){
+      const categoryOptions = getCategoryOptionsForTournament();
+      const roundOptions = getRoundOptionsForTournament();
+      setSelectOptions(categoryNameInput, categoryOptions, preferredCategory);
+      setSelectOptions(roundLabelInput, roundOptions, preferredRound);
+
+      if(!categoryOptions.includes(preferredCategory)){
+        currentMatch.categoryName = categoryNameInput.value;
+        currentMatch.categoryId = slugify(currentMatch.categoryName);
+      } else {
+        currentMatch.categoryName = preferredCategory;
+        currentMatch.categoryId = slugify(currentMatch.categoryName);
+        categoryNameInput.value = currentMatch.categoryName;
+      }
+
+      if(!roundOptions.includes(preferredRound)){
+        currentMatch.roundLabel = roundLabelInput.value;
+      } else {
+        currentMatch.roundLabel = preferredRound;
+        roundLabelInput.value = currentMatch.roundLabel;
+      }
+    }
+
+    function getTeamPlayerLimit(){
+      return 9;
+    }
+
+    function getRelayTargets(){
+      if(isGrandeFinaleRelayMode()){
+        return [5, 10, 15, 20, 25, 30];
+      }
+      return [6, 12, 18, 24, 30, 36, 42];
+    }
+
+    function getCurrentRelayIndex(){
+      return Math.min(currentMatch.sets.length, getRelayTargets().length - 1);
+    }
+
+    function parseRelayTextarea(value){
+      const lines = String(value || "")
+        .split(/\r?\n/)
+        .map(line => line.trim());
+      const maxLines = Math.max(getRelayTargets().length, getTeamPlayerLimit());
+      return [...lines, "", "", "", "", "", "", "", "", ""].slice(0, maxLines);
+    }
+
+    function parseTeamPlayers(value){
+      const players = [];
+      const seenKeys = new Set();
+      let duplicatesCount = 0;
+
+      String(value || "")
+        .split(/\r?\n/)
+        .map(line => line.trim())
+        .filter(Boolean)
+        .forEach((playerName) => {
+          const key = normalizeSearch(playerName).replace(/\s+/g, " ");
+          if(seenKeys.has(key)){
+            duplicatesCount += 1;
+            return;
+          }
+          seenKeys.add(key);
+          players.push(playerName);
+        });
+
+      return {
+        players: players.slice(0, getTeamPlayerLimit()),
+        rawCount: players.length,
+        duplicatesCount
+      };
+    }
+
+    function relayPlayersFromTeamPlayers(players){
+      const maxLines = Math.max(getRelayTargets().length, getTeamPlayerLimit());
+      return [...(players || []), "", "", "", "", "", "", "", "", ""].slice(0, maxLines);
+    }
+
+    function syncRelayInputsFromMatch(){
+      relayPlayersAInput.value = (currentMatch.relayPlayers?.A || []).join("\n");
+      relayPlayersBInput.value = (currentMatch.relayPlayers?.B || []).join("\n");
+    }
+
+    function syncRelayPlayersFromInputs(){
+      currentMatch.relayPlayers = {
+        A: parseRelayTextarea(relayPlayersAInput.value),
+        B: parseRelayTextarea(relayPlayersBInput.value)
+      };
+    }
+
+    function handleRelayPlayersInput(){
+      syncRelayPlayersFromInputs();
+      nameAEl.innerText = getBoardDisplayName("A");
+      nameBEl.innerText = getBoardDisplayName("B");
+      updateMetaPanel();
+      persistCurrentMatch();
+    }
+
+    function insertTextAtTextareaCursor(textarea, text){
+      const start = textarea.selectionStart ?? textarea.value.length;
+      const end = textarea.selectionEnd ?? textarea.value.length;
+
+      if(typeof textarea.setRangeText === "function"){
+        textarea.setRangeText(text, start, end, "end");
+      } else {
+        textarea.value = `${textarea.value.slice(0, start)}${text}${textarea.value.slice(end)}`;
+        const nextCursor = start + text.length;
+        textarea.setSelectionRange(nextCursor, nextCursor);
+      }
+    }
+
+    function isSpaceKeyEvent(event){
+      return event.key === " " || event.key === "Spacebar" || event.key === "Space" || event.code === "Space";
+    }
+
+    function getActiveLineListTextarea(eventTarget){
+      const target = eventTarget?.closest?.(".line-list-textarea");
+      if(target){
+        return target;
+      }
+
+      const activeElement = document.activeElement;
+      return activeElement?.classList?.contains("line-list-textarea") ? activeElement : null;
+    }
+
+    function handleLineListTextareaKeydown(event){
+      if(!isSpaceKeyEvent(event)){
+        return;
+      }
+      if(event.ctrlKey || event.altKey || event.metaKey){
+        return;
+      }
+
+      const textarea = getActiveLineListTextarea(event.target);
+      if(!textarea){
+        return;
+      }
+
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+      insertTextAtTextareaCursor(textarea, " ");
+      textarea.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+
+    function getCurrentDisplayName(team){
+      if(!isRelayRaceMode()){
+        return team === "A" ? currentMatch.teamA.name : currentMatch.teamB.name;
+      }
+
+      const relayIndex = getCurrentRelayIndex();
+      const relayName = currentMatch.relayPlayers?.[team]?.[relayIndex]?.trim();
+      if(relayName){
+        return relayName;
+      }
+
+      return team === "A" ? currentMatch.teamA.name : currentMatch.teamB.name;
+    }
+
+    function getBoardDisplayName(team){
+      if(isRelayRaceMode() && isMatchFinished()){
+        return team === "A" ? currentMatch.teamA.name : currentMatch.teamB.name;
+      }
+      return getCurrentDisplayName(team);
+    }
+
+    function updateCdfClubPanel(){
+      const active = isRelayRaceMode();
+      syncTournamentDependentSelects();
+      applyGrandeFinaleRelayDefaults();
+      cdfClubPanelEl.style.display = active ? "block" : "none";
+      teamsPanelEl.style.display = usesTeamCatalogForContestants() ? "block" : "none";
+      playerAFieldEl.style.display = "";
+      playerBFieldEl.style.display = "";
+      playerALabelEl.textContent = active ? "Equipe A" : "Joueur A";
+      playerBLabelEl.textContent = active ? "Equipe B" : "Joueur B";
+      timeoutABtn.textContent = active ? "Temps mort relais A" : "Temps mort A";
+      timeoutBBtn.textContent = active ? "Temps mort relais B" : "Temps mort B";
+      if(timeoutAEls[1]){
+        timeoutAEls[1].style.display = active ? "none" : "";
+      }
+      if(timeoutBEls[1]){
+        timeoutBEls[1].style.display = active ? "none" : "";
+      }
+
+      if(isCdfClubMode()){
+        if(!CDF_CLUB_CATEGORIES.includes(currentMatch.categoryName)){
+          currentMatch.categoryName = "LIGUE 1";
+          currentMatch.categoryId = slugify(currentMatch.categoryName);
+          categoryNameInput.value = currentMatch.categoryName;
+        }
+        if(!/^TOUR\s(1[0-2]|[1-9])$/.test(currentMatch.roundLabel)){
+          currentMatch.roundLabel = "TOUR 1";
+          roundLabelInput.value = currentMatch.roundLabel;
+        }
+      }
+
+      if(active){
+        const relayNumber = getCurrentRelayIndex() + 1;
+        const target = getRelayTargets()[getCurrentRelayIndex()];
+        cdfClubStatusEl.textContent = `Relais ${relayNumber} en cours - objectif ${target} points - 1 temps mort par relais.`;
+        if(isGrandeFinaleRelayMode()){
+          cdfClubStatusEl.textContent += " Match nul possible à 29-29.";
+        }
+      } else {
+        cdfClubStatusEl.textContent = "";
+      }
+    }
+
+    function getCurrentSetTarget(){
+      if(isRelayRaceMode()){
+        return getRelayTargets()[getCurrentRelayIndex()];
+      }
+      if(isShootoutMode()){
+        return 10;
+      }
+      if(isCdfIndivShortMatchMode()){
+        return 8;
+      }
+      return isFinalSet() ? SCORE_FINAL_SET_MAX : SCORE_NORMAL;
+    }
+
+    function getTimeoutLimit(){
+      return isRelayRaceMode() ? 1 : 2;
+    }
+
+    function setPlayersBaseStatus(text, isError = false){
+      playersBaseStatusEl.textContent = text;
+      playersBaseStatusEl.style.color = isError ? "#ff8f8f" : "white";
+    }
+
+    function setTeamsStatus(text, isError = false){
+      teamsStatusEl.textContent = text;
+      teamsStatusEl.style.color = isError ? "#ff8f8f" : "white";
+    }
+
+    function hideSuggestions(box){
+      box.classList.remove("show");
+      box.innerHTML = "";
+    }
+
+    function renderSuggestions({ inputEl, boxEl, items, query, onSelect, emptyText }){
+      const normalizedQuery = normalizeSearch(query);
+      const matchingItems = items.filter((item) => !normalizedQuery || normalizeSearch(item.label).includes(normalizedQuery));
+      const filtered = matchingItems.length ? matchingItems : items;
+
+      if(items.length === 0){
+        boxEl.innerHTML = `<div class="suggestion-item"><div class="suggestion-title">${emptyText}</div></div>`;
+        boxEl.classList.add("show");
+        return;
+      }
+
+      boxEl.innerHTML = filtered.map((item, index) => `
+        <div class="suggestion-item" data-index="${index}">
+          <div class="suggestion-title">${escapeHtml(item.label)}</div>
+          ${item.meta ? `<div class="suggestion-meta">${escapeHtml(item.meta)}</div>` : ""}
+        </div>
+      `).join("");
+
+      [...boxEl.querySelectorAll(".suggestion-item")].forEach((node) => {
+        node.addEventListener("mousedown", (event) => {
+          event.preventDefault();
+          const item = filtered[Number(node.dataset.index)];
+          onSelect(item);
+          hideSuggestions(boxEl);
+          inputEl.blur();
+        });
+      });
+
+      boxEl.classList.add("show");
+    }
+
+    function getTournamentCatalogItems(){
+      return tournamentsCatalog.map((tournament) => ({
+        label: tournament.name,
+        meta: tournament.categoriesCount > 0 ? `${tournament.categoriesCount} categorie(s)` : "Aucune categorie enregistree",
+        value: tournament
+      }));
+    }
+
+    function refreshTournamentOptions(selectedTournamentId = currentMatch.tournamentId){
+      const fallbackId = selectedTournamentId || slugify(currentMatch.tournamentName) || "tournoi_du_club";
+      const knownOptions = tournamentsCatalog.map((tournament) => ({
+        id: tournament.id,
+        name: tournament.name || tournament.id
+      }));
+
+      if(!knownOptions.some((option) => option.id === fallbackId)){
+        knownOptions.push({
+          id: fallbackId,
+          name: currentMatch.tournamentName || "Tournoi du club"
+        });
+      }
+
+      const uniqueOptions = knownOptions
+        .filter((option, index, array) => option.id && array.findIndex((item) => item.id === option.id) === index)
+        .sort((a, b) => a.name.localeCompare(b.name, "fr", { sensitivity: "base" }));
+
+      tournamentNameInput.innerHTML = uniqueOptions
+        .map((option) => `<option value="${escapeHtml(option.id)}">${escapeHtml(option.name)}</option>`)
+        .join("");
+
+      tournamentNameInput.value = uniqueOptions.some((option) => option.id === fallbackId)
+        ? fallbackId
+        : (uniqueOptions[0]?.id || fallbackId);
+    }
+
+    function getPlayerCatalogItems(){
+      return currentCategoryPlayerRecords.map((player) => {
+        const rankings = player.rankings || {};
+        const hasRankings = [rankings.general, rankings.simple, rankings.double].some((value) => value !== "" && value !== "-" && value !== undefined && value !== null);
+        const rankingMeta = hasRankings
+          ? `G ${rankings.general ?? "-"} | S ${rankings.simple ?? "-"} | D ${rankings.double ?? "-"}`
+          : `${currentMatch.tournamentName || "Tournoi courant"} - ${currentMatch.categoryName || "Categorie courante"}`;
+
+        return {
+          label: player.name,
+          meta: rankingMeta,
+          value: player.name
+        };
+      });
+    }
+
+    function getContestantCatalogItems(){
+      return usesTeamCatalogForContestants() ? getTeamCatalogItems() : getPlayerCatalogItems();
+    }
+
+    function selectContestant(teamKey, itemValue){
+      if(usesTeamCatalogForContestants() && itemValue?.players){
+        applyTeamToSide(teamKey, itemValue);
+        return;
+      }
+
+      if(teamKey === "A"){
+        playerAInput.value = itemValue;
+      } else {
+        playerBInput.value = itemValue;
+      }
+      renderTexts();
+    }
+
+    function handleContestantSearchInput(teamKey, inputEl, suggestionsEl){
+      const value = inputEl.value.trim();
+
+      if(value){
+        if(teamKey === "A"){
+          currentMatch.teamA.name = value;
+          currentMatch.teamA.players = [value];
+        } else {
+          currentMatch.teamB.name = value;
+          currentMatch.teamB.players = [value];
+        }
+        renderTexts();
+      } else {
+        suggestionsEl.classList.add("show");
+      }
+
+      renderSuggestions({
+        inputEl,
+        boxEl: suggestionsEl,
+        items: getContestantCatalogItems(),
+        query: inputEl.value,
+        emptyText: "Aucun joueur trouvé",
+        onSelect: (item) => selectContestant(teamKey, item.value)
+      });
+    }
+
+    function refreshPlayersTextarea(){
+      playersBaseTextarea.value = currentCategoryPlayers.join("\n");
+    }
+
+    function normalizeTeamRecord(source = {}){
+      const name = source.name || "Equipe sans nom";
+      const players = Array.isArray(source.players)
+        ? source.players.map((player) => String(player || "").trim()).filter(Boolean).slice(0, getTeamPlayerLimit())
+        : [];
+
+      return {
+        id: source.id || slugify(name),
+        name,
+        normalizedName: source.normalizedName || normalizeSearch(name).replace(/\s+/g, " "),
+        players
+      };
+    }
+
+    function refreshTeamOptions(selectedTeamId = teamSelectInput.value){
+      const options = currentCategoryTeams
+        .map((team) => ({ id: team.id || slugify(team.name), name: team.name }))
+        .sort((a, b) => a.name.localeCompare(b.name, "fr", { sensitivity: "base" }));
+
+      teamSelectInput.innerHTML = `<option value="">Nouvelle equipe</option>` + options
+        .map((option) => `<option value="${escapeHtml(option.id)}">${escapeHtml(option.name)}</option>`)
+        .join("");
+
+      if(options.some((option) => option.id === selectedTeamId)){
+        teamSelectInput.value = selectedTeamId;
+      }
+    }
+
+    function setCurrentCategoryTeams(teams, selectedTeamId = teamSelectInput.value){
+      currentCategoryTeams = teams
+        .map((team) => normalizeTeamRecord(team))
+        .sort((a, b) => a.name.localeCompare(b.name, "fr", { sensitivity: "base" }));
+      refreshTeamOptions(selectedTeamId);
+    }
+
+    function getTeamByName(teamName){
+      const key = normalizeSearch(teamName).replace(/\s+/g, " ");
+      return currentCategoryTeams.find((team) => normalizeSearch(team.name).replace(/\s+/g, " ") === key);
+    }
+
+    function canReplaceWithGrandeFinaleTeam(teamKey){
+      const currentName = teamKey === "A" ? currentMatch.teamA.name : currentMatch.teamB.name;
+      const defaultName = GRANDE_FINALE_RELAY_TEAMS[teamKey];
+      const normalizedName = normalizeSearch(currentName).replace(/\s+/g, " ");
+      const normalizedDefault = normalizeSearch(defaultName).replace(/\s+/g, " ");
+      const placeholders = teamKey === "A"
+        ? ["", "joueur a", "tourmante.a"]
+        : ["", "joueur b", "droit.t"];
+
+      return placeholders.includes(normalizedName) || normalizedName === normalizedDefault;
+    }
+
+    function applyTeamNameToSide(teamKey, teamName, teamRecord = null){
+      const hasTeamRecordPlayers = Array.isArray(teamRecord?.players) && teamRecord.players.length;
+      const existingRelayPlayers = relayPlayersFromTeamPlayers(currentMatch.relayPlayers?.[teamKey] || []);
+      const existingRelayNames = existingRelayPlayers.map((player) => String(player || "").trim()).filter(Boolean);
+      const teamPlayers = hasTeamRecordPlayers
+        ? [...teamRecord.players]
+        : (existingRelayNames.length ? existingRelayNames : [teamName]);
+      const relayPlayers = hasTeamRecordPlayers
+        ? relayPlayersFromTeamPlayers(teamPlayers)
+        : existingRelayPlayers;
+
+      if(teamKey === "A"){
+        playerAInput.value = teamRecord?.name || teamName;
+        relayPlayersAInput.value = relayPlayers.join("\n");
+        currentMatch.teamA = { name: teamRecord?.name || teamName, players: teamPlayers };
+        currentMatch.relayPlayers.A = relayPlayers;
+      } else {
+        playerBInput.value = teamRecord?.name || teamName;
+        relayPlayersBInput.value = relayPlayers.join("\n");
+        currentMatch.teamB = { name: teamRecord?.name || teamName, players: teamPlayers };
+        currentMatch.relayPlayers.B = relayPlayers;
+      }
+    }
+
+    function applyGrandeFinaleRelayDefaults(){
+      if(!isGrandeFinaleRelayMode()){
+        return;
+      }
+
+      ["A", "B"].forEach((teamKey) => {
+        const defaultName = GRANDE_FINALE_RELAY_TEAMS[teamKey];
+        if(!canReplaceWithGrandeFinaleTeam(teamKey)){
+          return;
+        }
+
+        const defaultPlayers = GRANDE_FINALE_RELAY_DEFAULT_PLAYERS[teamKey];
+        const savedTeamRecord = getTeamByName(defaultName);
+        const teamRecord = savedTeamRecord || (Array.isArray(defaultPlayers) && defaultPlayers.length
+          ? { name: defaultName, players: defaultPlayers }
+          : null);
+        const currentRelayNames = (currentMatch.relayPlayers?.[teamKey] || [])
+          .map((player) => String(player || "").trim())
+          .filter(Boolean);
+        const savedRelayNames = Array.isArray(teamRecord?.players)
+          ? teamRecord.players.map((player) => String(player || "").trim()).filter(Boolean)
+          : [];
+        const relayAlreadyEdited = currentRelayNames.length
+          && savedRelayNames.length
+          && currentRelayNames.join("\n") !== savedRelayNames.join("\n");
+
+        if(relayAlreadyEdited){
+          return;
+        }
+
+        applyTeamNameToSide(teamKey, defaultName, teamRecord);
+      });
+    }
+
+    function getTeamCatalogItems(){
+      return currentCategoryTeams.map((team) => ({
+        label: team.name,
+        meta: `${team.players.length} joueur(s)`,
+        value: team
+      }));
+    }
+
+    function fillTeamEditor(team){
+      if(!team){
+        teamNameInput.value = "";
+        teamPlayersTextarea.value = "";
+        refreshTeamOptions("");
+        setTeamsStatus("Nouvelle equipe.");
+        return;
+      }
+
+      teamNameInput.value = team.name;
+      teamPlayersTextarea.value = team.players.join("\n");
+      refreshTeamOptions(team.id);
+      setTeamsStatus(`${team.name} chargee (${team.players.length} joueur(s)).`);
+    }
+
+    function applyTeamToSide(teamKey, team){
+      if(!team){
+        return;
+      }
+
+      const relayPlayers = relayPlayersFromTeamPlayers(team.players);
+      if(teamKey === "A"){
+        playerAInput.value = team.name;
+        relayPlayersAInput.value = relayPlayers.join("\n");
+        currentMatch.teamA = { name: team.name, players: [...team.players] };
+        currentMatch.relayPlayers.A = relayPlayers;
+      } else {
+        playerBInput.value = team.name;
+        relayPlayersBInput.value = relayPlayers.join("\n");
+        currentMatch.teamB = { name: team.name, players: [...team.players] };
+        currentMatch.relayPlayers.B = relayPlayers;
+      }
+
+      renderTexts();
+      setTeamsStatus(`${team.name} affectee a l'equipe ${teamKey}.`);
+    }
+
+    function buildPlayerProfile(name, source = {}){
+      return {
+        id: source.id || slugify(name),
+        name,
+        normalizedName: normalizeSearch(name).replace(/\s+/g, " "),
+        photoPath: typeof source.photoPath === "string" ? source.photoPath : "",
+        photoUrl: typeof source.photoUrl === "string" ? source.photoUrl : "",
+        rankings: {
+          general: source?.rankings?.general ?? "",
+          simple: source?.rankings?.simple ?? "",
+          double: source?.rankings?.double ?? ""
+        }
+      };
+    }
+
+    function setCurrentCategoryPlayersFromRecords(records){
+      currentCategoryPlayerRecords = [...records].sort((a, b) => a.name.localeCompare(b.name, "fr", { sensitivity: "base" }));
+      currentCategoryPlayers = currentCategoryPlayerRecords.map((player) => player.name);
+      refreshPlayersTextarea();
+    }
+
+    function parsePlayersBaseEntries(rawValue){
+      const uniquePlayers = [];
+      const seenKeys = new Set();
+      let duplicatesCount = 0;
+
+      rawValue
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter(Boolean)
+        .forEach((playerName) => {
+          const normalizedKey = normalizeSearch(playerName).replace(/\s+/g, " ");
+          if(!normalizedKey){
+            return;
+          }
+
+          if(seenKeys.has(normalizedKey)){
+            duplicatesCount += 1;
+            return;
+          }
+
+          seenKeys.add(normalizedKey);
+          uniquePlayers.push(playerName);
+        });
+
+      uniquePlayers.sort((a, b) => a.localeCompare(b, "fr", { sensitivity: "base" }));
+
+      return {
+        players: uniquePlayers,
+        duplicatesCount
+      };
+    }
+
+    function setTournamentSelection(tournament){
+      const nextTournamentName = tournament?.name || currentMatch.tournamentName || "Tournoi sans nom";
+      const nextTournamentId = tournament?.id || slugify(nextTournamentName);
+
+      tournamentNameInput.value = nextTournamentId;
+      currentMatch.tournamentName = nextTournamentName;
+      currentMatch.tournamentId = nextTournamentId;
+      renderTexts();
+      loadPlayersBaseForCategory(nextTournamentId, currentMatch.categoryId);
+    }
+
+    async function loadTournamentsCatalog(){
+      const ready = await initFirebase();
+      if(!ready || !firestoreDb || !firestoreFns){
+        return;
+      }
+
+      try{
+        const { collection, getDocs } = firestoreFns;
+        const snapshot = await getDocs(collection(firestoreDb, "tournaments"));
+
+        tournamentsCatalog = snapshot.docs
+          .map((docSnap) => {
+            const data = docSnap.data() || {};
+            const categories = Array.isArray(data.categories) ? data.categories : [];
+            return {
+              id: data.id || docSnap.id,
+              name: data.name || docSnap.id,
+              categoriesCount: categories.length
+            };
+          })
+          .sort((a, b) => a.name.localeCompare(b.name, "fr", { sensitivity: "base" }));
+
+        setPlayersBaseStatus(`${tournamentsCatalog.length} tournoi(s) chargÃ©(s).`);
+      } catch(error){
+        console.error(error);
+        setPlayersBaseStatus(`Impossible de charger les tournois : ${error.message}`, true);
+      }
+    }
+
+    async function loadPlayersForTournament(tournamentId){
+      if(!tournamentId){
+        currentTournamentPlayers = [];
+        refreshPlayersTextarea();
+        return;
+      }
+
+      const ready = await initFirebase();
+      if(!ready || !firestoreDb || !firestoreFns){
+        return;
+      }
+
+      try{
+        const { doc, getDoc } = firestoreFns;
+        const tournamentRef = doc(firestoreDb, "tournaments", tournamentId);
+        const snapshot = await getDoc(tournamentRef);
+        const data = snapshot.exists() ? snapshot.data() : {};
+        const registeredPlayers = Array.isArray(data?.registeredPlayers) ? data.registeredPlayers : [];
+        currentTournamentPlayers = [...new Set(registeredPlayers.filter(Boolean))].sort((a, b) => a.localeCompare(b, "fr", { sensitivity: "base" }));
+        refreshPlayersTextarea();
+        setPlayersBaseStatus(`${currentTournamentPlayers.length} joueur(s) chargÃ©(s) pour ${currentMatch.tournamentName}.`);
+      } catch(error){
+        console.error(error);
+        setPlayersBaseStatus(`Impossible de charger la base joueurs : ${error.message}`, true);
+      }
+    }
+
+    async function savePlayersBase(){
+      const selectedTournament = tournamentsCatalog.find((tournament) => tournament.id === tournamentNameInput.value);
+      const tournamentName = selectedTournament?.name || currentMatch.tournamentName || "Tournoi sans nom";
+      const tournamentId = selectedTournament?.id || slugify(tournamentName);
+      const players = [...new Set(
+        playersBaseTextarea.value
+          .split(/\r?\n/)
+          .map(line => line.trim())
+          .filter(Boolean)
+      )].sort((a, b) => a.localeCompare(b, "fr", { sensitivity: "base" }));
+
+      const ready = await initFirebase();
+      if(!ready || !firestoreDb || !firestoreFns){
+        setPlayersBaseStatus("Firebase n'est pas prÃªt.", true);
+        return;
+      }
+
+      try{
+        const { doc, setDoc, serverTimestamp } = firestoreFns;
+        await setDoc(doc(firestoreDb, "tournaments", tournamentId), {
+          id: tournamentId,
+          name: tournamentName,
+          registeredPlayers: players,
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+
+        currentMatch.tournamentName = tournamentName;
+        currentMatch.tournamentId = tournamentId;
+        tournamentNameInput.value = tournamentId;
+        currentTournamentPlayers = players;
+        refreshPlayersTextarea();
+        await loadTournamentsCatalog();
+        refreshTournamentOptions();
+        persistCurrentMatch();
+        setPlayersBaseStatus(`Base joueurs sauvegardÃ©e pour ${tournamentName} (${players.length} joueur(s)).`);
+      } catch(error){
+        console.error(error);
+        setPlayersBaseStatus(`Impossible de sauvegarder la base joueurs : ${error.message}`, true);
+      }
+    }
+
+    async function loadPlayersBaseForCategory(tournamentId = currentMatch.tournamentId, categoryId = currentMatch.categoryId){
+      if(!tournamentId || !categoryId){
+        currentCategoryPlayers = [];
+        currentCategoryPlayerRecords = [];
+        refreshPlayersTextarea();
+        return;
+      }
+
+      const ready = await initFirebase();
+      if(!ready || !firestoreDb || !firestoreFns){
+        return;
+      }
+
+      try{
+        const { collection, doc, getDoc, getDocs } = firestoreFns;
+        const categoryRef = doc(firestoreDb, "tournaments", tournamentId, "categories", categoryId);
+        const playersSnapshot = await getDocs(collection(firestoreDb, "tournaments", tournamentId, "categories", categoryId, "players"));
+
+        if(!playersSnapshot.empty){
+          const playerRecords = playersSnapshot.docs
+            .map((docSnap) => {
+              const data = docSnap.data() || {};
+              const playerName = data.name || docSnap.id;
+              return buildPlayerProfile(playerName, {
+                id: data.id || docSnap.id,
+                normalizedName: data.normalizedName,
+                photoPath: data.photoPath,
+                photoUrl: data.photoUrl,
+                rankings: data.rankings
+              });
+            })
+            .filter((player) => player.name);
+
+          setCurrentCategoryPlayersFromRecords(playerRecords);
+        } else {
+          const snapshot = await getDoc(categoryRef);
+          const data = snapshot.exists() ? snapshot.data() : {};
+          const registeredPlayers = Array.isArray(data.registeredPlayers) ? data.registeredPlayers : [];
+          const fallbackRecords = [...new Set(registeredPlayers.filter(Boolean))]
+            .sort((a, b) => a.localeCompare(b, "fr", { sensitivity: "base" }))
+            .map((playerName) => buildPlayerProfile(playerName));
+
+          setCurrentCategoryPlayersFromRecords(fallbackRecords);
+        }
+
+        setPlayersBaseStatus(`${currentCategoryPlayers.length} joueur(s) charges pour ${currentMatch.tournamentName} - ${currentMatch.categoryName}.`);
+        await loadTeamsForCategory(tournamentId, categoryId);
+      } catch(error){
+        console.error(error);
+        setPlayersBaseStatus(`Impossible de charger la base joueurs : ${error.message}`, true);
+      }
+    }
+
+    async function loadTeamsForCategory(tournamentId = currentMatch.tournamentId, categoryId = currentMatch.categoryId){
+      if(!tournamentId || !categoryId){
+        setCurrentCategoryTeams([]);
+        return;
+      }
+
+      const ready = await initFirebase();
+      if(!ready || !firestoreDb || !firestoreFns){
+        return;
+      }
+
+      try{
+        const { collection, getDocs } = firestoreFns;
+        const teamsSnapshot = await getDocs(collection(firestoreDb, "tournaments", tournamentId, "categories", categoryId, "teams"));
+        const teams = teamsSnapshot.docs
+          .map((docSnap) => normalizeTeamRecord({
+            id: docSnap.id,
+            ...(docSnap.data() || {})
+          }))
+          .filter((team) => team.name);
+
+        setCurrentCategoryTeams(teams);
+        setTeamsStatus(`${currentCategoryTeams.length} equipe(s) chargee(s) pour ${currentMatch.categoryName}.`);
+        if(isGrandeFinaleRelayMode()){
+          applyGrandeFinaleRelayDefaults();
+          renderTexts();
+        }
+      } catch(error){
+        console.error(error);
+        setTeamsStatus(`Impossible de charger les equipes : ${error.message}`, true);
+      }
+    }
+
+    async function saveTeamForCategory(){
+      const selectedTournament = tournamentsCatalog.find((tournament) => tournament.id === tournamentNameInput.value);
+      const tournamentName = selectedTournament?.name || currentMatch.tournamentName || "Tournoi sans nom";
+      const tournamentId = selectedTournament?.id || slugify(tournamentName);
+      const categoryName = categoryNameInput.value.trim() || currentMatch.categoryName || "Categorie sans nom";
+      const categoryId = slugify(categoryName);
+      const teamName = teamNameInput.value.trim();
+      const { players, rawCount, duplicatesCount } = parseTeamPlayers(teamPlayersTextarea.value);
+
+      if(!teamName){
+        setTeamsStatus("Renseigne un nom d'equipe.", true);
+        return;
+      }
+
+      if(players.length < 6 || players.length > 9){
+        setTeamsStatus("Une equipe doit contenir entre 6 et 9 joueurs.", true);
+        return;
+      }
+
+      const ready = await initFirebase();
+      if(!ready || !firestoreDb || !firestoreFns){
+        setTeamsStatus("Firebase n'est pas pret.", true);
+        return;
+      }
+
+      try{
+        const { arrayUnion, doc, setDoc, serverTimestamp } = firestoreFns;
+        const teamId = slugify(teamName);
+
+        await setDoc(doc(firestoreDb, "tournaments", tournamentId), {
+          id: tournamentId,
+          name: tournamentName,
+          categories: arrayUnion(categoryName),
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+
+        await setDoc(doc(firestoreDb, "tournaments", tournamentId, "categories", categoryId), {
+          id: categoryId,
+          name: categoryName,
+          tournamentId,
+          tournamentName,
+          registeredTeams: arrayUnion(teamName),
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+
+        await setDoc(doc(firestoreDb, "tournaments", tournamentId, "categories", categoryId, "teams", teamId), {
+          id: teamId,
+          name: teamName,
+          normalizedName: normalizeSearch(teamName).replace(/\s+/g, " "),
+          players,
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+
+        currentMatch.tournamentName = tournamentName;
+        currentMatch.tournamentId = tournamentId;
+        currentMatch.categoryName = categoryName;
+        currentMatch.categoryId = categoryId;
+        tournamentNameInput.value = tournamentId;
+        categoryNameInput.value = categoryName;
+
+        const nextTeams = [
+          ...currentCategoryTeams.filter((team) => team.id !== teamId),
+          { id: teamId, name: teamName, players }
+        ];
+        setCurrentCategoryTeams(nextTeams, teamId);
+        persistCurrentMatch();
+
+        const limitMessage = rawCount > players.length ? ` ${rawCount - players.length} joueur(s) au-dela de la limite ignore(s).` : "";
+        const duplicatesMessage = duplicatesCount > 0 ? ` ${duplicatesCount} doublon(s) ignore(s).` : "";
+        setTeamsStatus(`Equipe ${teamName} sauvegardee (${players.length} joueur(s)).${limitMessage}${duplicatesMessage}`);
+      } catch(error){
+        console.error(error);
+        setTeamsStatus(`Impossible de sauvegarder l'equipe : ${error.message}`, true);
+      }
+    }
+
+    async function savePlayersBaseForCategory(){
+      const selectedTournament = tournamentsCatalog.find((tournament) => tournament.id === tournamentNameInput.value);
+      const tournamentName = selectedTournament?.name || currentMatch.tournamentName || "Tournoi sans nom";
+      const tournamentId = selectedTournament?.id || slugify(tournamentName);
+      const categoryName = categoryNameInput.value.trim() || currentMatch.categoryName || "Categorie sans nom";
+      const categoryId = slugify(categoryName);
+      const { players, duplicatesCount } = parsePlayersBaseEntries(playersBaseTextarea.value);
+
+      const ready = await initFirebase();
+      if(!ready || !firestoreDb || !firestoreFns){
+        setPlayersBaseStatus("Firebase n'est pas pret.", true);
+        return;
+      }
+
+      try{
+        const { arrayUnion, doc, setDoc, serverTimestamp, writeBatch } = firestoreFns;
+        await setDoc(doc(firestoreDb, "tournaments", tournamentId), {
+          id: tournamentId,
+          name: tournamentName,
+          categories: arrayUnion(categoryName),
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+
+        await setDoc(doc(firestoreDb, "tournaments", tournamentId, "categories", categoryId), {
+          id: categoryId,
+          name: categoryName,
+          tournamentId,
+          tournamentName,
+          registeredPlayers: players,
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+
+        const batch = writeBatch(firestoreDb);
+        players.forEach((playerName) => {
+          const playerId = slugify(playerName);
+          const existingRecord = currentCategoryPlayerRecords.find((player) => normalizeSearch(player.name) === normalizeSearch(playerName));
+          const playerRef = doc(firestoreDb, "tournaments", tournamentId, "categories", categoryId, "players", playerId);
+          batch.set(playerRef, {
+            id: playerId,
+            name: playerName,
+            normalizedName: normalizeSearch(playerName).replace(/\s+/g, " "),
+            photoPath: existingRecord?.photoPath || "",
+            photoUrl: existingRecord?.photoUrl || "",
+            rankings: {
+              general: existingRecord?.rankings?.general ?? "",
+              simple: existingRecord?.rankings?.simple ?? "",
+              double: existingRecord?.rankings?.double ?? ""
+            },
+            updatedAt: serverTimestamp()
+          }, { merge: true });
+        });
+        await batch.commit();
+
+        currentMatch.tournamentName = tournamentName;
+        currentMatch.tournamentId = tournamentId;
+        currentMatch.categoryName = categoryName;
+        currentMatch.categoryId = categoryId;
+        tournamentNameInput.value = tournamentId;
+        categoryNameInput.value = categoryName;
+        setCurrentCategoryPlayersFromRecords(players.map((playerName) => {
+          const existingRecord = currentCategoryPlayerRecords.find((player) => normalizeSearch(player.name) === normalizeSearch(playerName));
+          return buildPlayerProfile(playerName, existingRecord || {});
+        }));
+        await loadTournamentsCatalog();
+        refreshTournamentOptions();
+        persistCurrentMatch();
+        const duplicatesMessage = duplicatesCount > 0 ? ` ${duplicatesCount} doublon(s) ignore(s).` : "";
+        setPlayersBaseStatus(`Base joueurs sauvegardee pour ${tournamentName} - ${categoryName} (${players.length} joueur(s)).${duplicatesMessage}`);
+      } catch(error){
+        console.error(error);
+        setPlayersBaseStatus(`Impossible de sauvegarder la base joueurs : ${error.message}`, true);
+      }
+    }
+
+    async function applyRankingsFromJoueurCdf(){
+      const file = rankingsFileInput.files?.[0];
+      if(!file){
+        setPlayersBaseStatus("Selectionne d'abord le fichier Joueur CDF.xlsx.", true);
+        return;
+      }
+
+      const selectedTournament = tournamentsCatalog.find((tournament) => tournament.id === tournamentNameInput.value);
+      const tournamentName = selectedTournament?.name || currentMatch.tournamentName || "Tournoi sans nom";
+      const tournamentId = selectedTournament?.id || slugify(tournamentName);
+      const categoryName = categoryNameInput.value.trim() || currentMatch.categoryName || "Categorie sans nom";
+      const categoryId = slugify(categoryName);
+      const { players } = parsePlayersBaseEntries(playersBaseTextarea.value);
+      const records = currentCategoryPlayerRecords.length
+        ? currentCategoryPlayerRecords
+        : players.map((playerName) => buildPlayerProfile(playerName));
+
+      if(!records.length){
+        setPlayersBaseStatus("Charge ou saisis d'abord une base joueurs pour cette categorie.", true);
+        return;
+      }
+
+      const ready = await initFirebase();
+      if(!ready || !firestoreDb || !firestoreFns){
+        setPlayersBaseStatus("Firebase n'est pas pret.", true);
+        return;
+      }
+
+      try{
+        setPlayersBaseStatus("Lecture du fichier Joueur CDF et affectation des classements...");
+        const rankingsByCode = await readRankingsWorkbook(file);
+        const { doc, serverTimestamp, writeBatch } = firestoreFns;
+        const batch = writeBatch(firestoreDb);
+        let updatedCount = 0;
+        let missingCount = 0;
+        const updatedRecords = records.map((player) => {
+          const playerRankings = rankingsByCode.get(normalizePlayerCode(player.name));
+          if(!playerRankings){
+            missingCount += 1;
+            return player;
+          }
+
+          updatedCount += 1;
+          const playerId = player.id || slugify(player.name);
+          const playerRef = doc(firestoreDb, "tournaments", tournamentId, "categories", categoryId, "players", playerId);
+          batch.set(playerRef, {
+            id: playerId,
+            name: player.name,
+            normalizedName: normalizeSearch(player.name).replace(/\s+/g, " "),
+            rankings: playerRankings,
+            updatedAt: serverTimestamp()
+          }, { merge: true });
+
+          return buildPlayerProfile(player.name, {
+            ...player,
+            rankings: playerRankings
+          });
+        });
+
+        if(updatedCount === 0){
+          setPlayersBaseStatus("Aucun joueur de cette categorie n'a ete trouve dans les classements Joueur CDF.", true);
+          return;
+        }
+
+        await batch.commit();
+        setCurrentCategoryPlayersFromRecords(updatedRecords);
+        setPlayersBaseStatus(`${updatedCount} classement(s) affecte(s) pour ${tournamentName} - ${categoryName}. ${missingCount} joueur(s) sans correspondance.`);
+      } catch(error){
+        console.error(error);
+        setPlayersBaseStatus(`Impossible d'affecter les classements : ${error.message}`, true);
+      }
+    }
+
+    async function applyPhotosFromFileNames(){
+      const selectedTournament = tournamentsCatalog.find((tournament) => tournament.id === tournamentNameInput.value);
+      const tournamentName = selectedTournament?.name || currentMatch.tournamentName || "Tournoi sans nom";
+      const tournamentId = selectedTournament?.id || slugify(tournamentName);
+      const categoryName = categoryNameInput.value.trim() || currentMatch.categoryName || "Categorie sans nom";
+      const categoryId = slugify(categoryName);
+      const { players } = parsePlayersBaseEntries(playersBaseTextarea.value);
+      const records = currentCategoryPlayerRecords.length
+        ? currentCategoryPlayerRecords
+        : players.map((playerName) => buildPlayerProfile(playerName));
+
+      if(!records.length){
+        setPlayersBaseStatus("Charge ou saisis d'abord une base joueurs pour cette categorie.", true);
+        return;
+      }
+
+      const ready = await initFirebase();
+      if(!ready || !firestoreDb || !firestoreFns){
+        setPlayersBaseStatus("Firebase n'est pas pret.", true);
+        return;
+      }
+
+      try{
+        const baseUrl = getPhotosBaseUrl();
+        localStorage.setItem(LOCAL_PHOTOS_BASE_URL_KEY, baseUrl);
+        setPlayersBaseStatus(`Recherche des photos dans ${baseUrl}...`);
+
+        const { doc, serverTimestamp, writeBatch } = firestoreFns;
+        const batch = writeBatch(firestoreDb);
+        const updatedRecords = [];
+        let updatedCount = 0;
+        let missingCount = 0;
+
+        for(const player of records){
+          const photoUrl = await findPhotoUrlForPlayer(player.name);
+          if(!photoUrl){
+            missingCount += 1;
+            updatedRecords.push(player);
+            continue;
+          }
+
+          updatedCount += 1;
+          const playerId = player.id || slugify(player.name);
+          const playerRef = doc(firestoreDb, "tournaments", tournamentId, "categories", categoryId, "players", playerId);
+          batch.set(playerRef, {
+            id: playerId,
+            name: player.name,
+            normalizedName: normalizeSearch(player.name).replace(/\s+/g, " "),
+            photoUrl,
+            photoPath: "",
+            updatedAt: serverTimestamp()
+          }, { merge: true });
+
+          updatedRecords.push(buildPlayerProfile(player.name, {
+            ...player,
+            photoUrl,
+            photoPath: ""
+          }));
+        }
+
+        if(updatedCount === 0){
+          setPlayersBaseStatus(`Aucune photo trouvee dans ${baseUrl}. Verifie que le serveur local est lance et que les fichiers portent le nom des joueurs.`, true);
+          return;
+        }
+
+        await batch.commit();
+        setCurrentCategoryPlayersFromRecords(updatedRecords);
+        setPlayersBaseStatus(`${updatedCount} photo(s) affectee(s) pour ${tournamentName} - ${categoryName}. ${missingCount} joueur(s) sans photo trouvee.`);
+      } catch(error){
+        console.error(error);
+        setPlayersBaseStatus(`Impossible d'affecter les photos : ${error.message}`, true);
+      }
+    }
+
     function syncInputsFromMatch(){
-      tournamentNameInput.value = currentMatch.tournamentName;
+      refreshTournamentOptions(currentMatch.tournamentId);
+      tournamentNameInput.value = currentMatch.tournamentId;
+      syncTournamentDependentSelects();
       categoryNameInput.value = currentMatch.categoryName;
       roundLabelInput.value = currentMatch.roundLabel;
       playerAInput.value = currentMatch.teamA.name;
       playerBInput.value = currentMatch.teamB.name;
+      confrontationCountInput.value = currentMatch.headToHead.confrontations;
+      victoryPlayerAInput.value = currentMatch.headToHead.victoryA;
+      victoryPlayerBInput.value = currentMatch.headToHead.victoryB;
+      syncRelayInputsFromMatch();
+      updateCdfClubPanel();
     }
 
     function syncMatchMetaFromInputs(){
-      currentMatch.tournamentName = tournamentNameInput.value.trim() || "Tournoi sans nom";
+      const selectedTournament = tournamentsCatalog.find((tournament) => tournament.id === tournamentNameInput.value);
+      currentMatch.tournamentName = selectedTournament?.name || currentMatch.tournamentName || "Tournoi sans nom";
+      const selectedCategory = categoryNameInput.value.trim();
+      const selectedRound = roundLabelInput.value.trim();
+      syncTournamentDependentSelects(selectedCategory, selectedRound);
       currentMatch.categoryName = categoryNameInput.value.trim() || "Catégorie sans nom";
       currentMatch.roundLabel = roundLabelInput.value.trim() || "Tour non défini";
       currentMatch.teamA.name = playerAInput.value.trim() || "JOUEUR A";
       currentMatch.teamA.players = [currentMatch.teamA.name];
       currentMatch.teamB.name = playerBInput.value.trim() || "JOUEUR B";
       currentMatch.teamB.players = [currentMatch.teamB.name];
-      currentMatch.tournamentId = slugify(currentMatch.tournamentName);
+      currentMatch.headToHead = {
+        confrontations: toNonNegativeInteger(confrontationCountInput.value),
+        victoryA: toNonNegativeInteger(victoryPlayerAInput.value),
+        victoryB: toNonNegativeInteger(victoryPlayerBInput.value)
+      };
+      syncRelayPlayersFromInputs();
+      if(usesTeamCatalogForContestants()){
+        const selectedTeamA = getTeamByName(currentMatch.teamA.name);
+        const selectedTeamB = getTeamByName(currentMatch.teamB.name);
+        currentMatch.teamA.players = selectedTeamA?.players?.length
+          ? [...selectedTeamA.players]
+          : currentMatch.relayPlayers.A.filter(Boolean);
+        currentMatch.teamB.players = selectedTeamB?.players?.length
+          ? [...selectedTeamB.players]
+          : currentMatch.relayPlayers.B.filter(Boolean);
+      }
+      currentMatch.tournamentId = selectedTournament?.id || slugify(currentMatch.tournamentName);
       currentMatch.categoryId = slugify(currentMatch.categoryName);
+      updateCdfClubPanel();
     }
 
     function getSetsWonA(){
@@ -1242,14 +3322,49 @@
     }
 
     function isMatchFinished(){
-      return getSetsWonA() >= MANCHES_POUR_GAGNER || getSetsWonB() >= MANCHES_POUR_GAGNER;
+      if(isRelayRaceMode()){
+        if(isRelayRaceDraw()){
+          return true;
+        }
+        const finalTarget = getRelayTargets()[getRelayTargets().length - 1];
+        return currentMatch.scoreA >= finalTarget || currentMatch.scoreB >= finalTarget;
+      }
+      if(isDrawMatchFinished()){
+        return true;
+      }
+      const setsNeeded = getSetsNeededToWinMatch();
+      return getSetsWonA() >= setsNeeded || getSetsWonB() >= setsNeeded;
     }
 
     function isFinalSet(){
-      return currentMatch.sets.length === 4;
+      if(isRelayRaceMode()){
+        return false;
+      }
+      if(isShootoutMode()){
+        return false;
+      }
+      if(isCdfIndivShortMatchMode()){
+        return true;
+      }
+      return currentMatch.sets.length === getDecidingSetCompletedCount();
     }
 
     function hasWonCurrentSet(playerScore, opponentScore){
+      if(isRelayRaceMode()){
+        if(isRelayRaceDraw()){
+          return false;
+        }
+        return playerScore >= getCurrentSetTarget();
+      }
+      if(isShootoutMode()){
+        return playerScore >= 10;
+      }
+      if(isCdfIndivShortMatchMode()){
+        if(playerScore === 7 && opponentScore === 7){
+          return false;
+        }
+        return playerScore >= 8;
+      }
       if(!isFinalSet()){
         return playerScore >= SCORE_NORMAL;
       }
@@ -1266,11 +3381,33 @@
     }
 
     function isMatchPointA(){
-      return getSetsWonA() === 2 && currentMatch.scoreA === 4 && !isMatchFinished();
+      if(isRelayRaceMode()){
+        return currentMatch.scoreA === getCurrentSetTarget() - 1 && !isMatchFinished();
+      }
+      if(isShootoutMode()){
+        return currentMatch.scoreA === 9 && !isMatchFinished();
+      }
+      if(isCdfIndivShortMatchMode()){
+        return currentMatch.scoreA === 7 && currentMatch.scoreB < 7 && !isMatchFinished();
+      }
+      return getSetsWonA() === getSetsNeededToWinMatch() - 1
+        && isSetPointForTeam("A", currentMatch.scoreA, currentMatch.scoreB, currentMatch.sets.length)
+        && !isMatchFinished();
     }
 
     function isMatchPointB(){
-      return getSetsWonB() === 2 && currentMatch.scoreB === 4 && !isMatchFinished();
+      if(isRelayRaceMode()){
+        return currentMatch.scoreB === getCurrentSetTarget() - 1 && !isMatchFinished();
+      }
+      if(isShootoutMode()){
+        return currentMatch.scoreB === 9 && !isMatchFinished();
+      }
+      if(isCdfIndivShortMatchMode()){
+        return currentMatch.scoreB === 7 && currentMatch.scoreA < 7 && !isMatchFinished();
+      }
+      return getSetsWonB() === getSetsNeededToWinMatch() - 1
+        && isSetPointForTeam("B", currentMatch.scoreA, currentMatch.scoreB, currentMatch.sets.length)
+        && !isMatchFinished();
     }
 
     function updateNameColumnWidth(){
@@ -1286,6 +3423,30 @@
       document.documentElement.style.setProperty("--name-col-width", `${finalWidth}px`);
     }
 
+    function measureRoundBadgeTextWidth(){
+      const clone = roundBadgeTextEl.cloneNode(true);
+      const textStyles = getComputedStyle(roundBadgeTextEl);
+      const badgeStyles = getComputedStyle(roundBadgeEl);
+      clone.style.position = "fixed";
+      clone.style.left = "-9999px";
+      clone.style.top = "-9999px";
+      clone.style.width = "max-content";
+      clone.style.maxWidth = "none";
+      clone.style.overflow = "visible";
+      clone.style.textOverflow = "clip";
+      clone.style.visibility = "hidden";
+      clone.style.fontFamily = textStyles.fontFamily || badgeStyles.fontFamily;
+      clone.style.fontSize = textStyles.fontSize || badgeStyles.fontSize;
+      clone.style.fontWeight = textStyles.fontWeight || badgeStyles.fontWeight;
+      clone.style.letterSpacing = textStyles.letterSpacing || badgeStyles.letterSpacing;
+      clone.style.textTransform = textStyles.textTransform || badgeStyles.textTransform;
+      clone.style.whiteSpace = "nowrap";
+      document.body.appendChild(clone);
+      const width = Math.ceil(clone.getBoundingClientRect().width || clone.scrollWidth || 0);
+      clone.remove();
+      return width;
+    }
+
     function syncBoardWidth(){
       requestAnimationFrame(() => {
         const width = Math.ceil(scoreboardEl.getBoundingClientRect().width);
@@ -1294,6 +3455,44 @@
           recapPanelEl.style.width = `${width}px`;
         }
         roundBadgeEl.style.width = "auto";
+        roundBadgeEl.classList.remove("logo-hidden");
+
+        const topRowWidth = Math.ceil(topRowEl.getBoundingClientRect().width || 0);
+        const bannerVisible = specialPointBannerEl.classList.contains("show") || specialPointBannerEl.classList.contains("draw-badge-visible");
+        const bannerWidth = bannerVisible ? Math.ceil(specialPointBannerEl.getBoundingClientRect().width || 0) : 0;
+        const availableBadgeWidth = Math.max(topRowWidth - bannerWidth - 10, 0);
+
+        const baseBadgeStyles = getComputedStyle(roundBadgeEl);
+        const baseBadgePadding = (parseFloat(baseBadgeStyles.paddingLeft) || 0) + (parseFloat(baseBadgeStyles.paddingRight) || 0);
+        const baseBadgeGap = parseFloat(baseBadgeStyles.gap) || 0;
+        const logoHeight = roundLogoEl ? Math.ceil(roundLogoEl.getBoundingClientRect().height || 60) : 0;
+        const naturalLogoWidth = roundLogoEl?.naturalWidth && roundLogoEl?.naturalHeight
+          ? Math.ceil((roundLogoEl.naturalWidth / roundLogoEl.naturalHeight) * logoHeight)
+          : logoHeight;
+        const textWidth = measureRoundBadgeTextWidth();
+        const badgeWidthWithLogo = baseBadgePadding + naturalLogoWidth + baseBadgeGap + textWidth;
+        const logoHideTolerance = 14;
+
+        if(availableBadgeWidth > 0 && badgeWidthWithLogo > availableBadgeWidth + logoHideTolerance){
+          roundBadgeEl.classList.add("logo-hidden");
+        }
+
+        const fittedBadgeStyles = getComputedStyle(roundBadgeEl);
+        const badgePadding = (parseFloat(fittedBadgeStyles.paddingLeft) || 0) + (parseFloat(fittedBadgeStyles.paddingRight) || 0);
+        const badgeGap = parseFloat(fittedBadgeStyles.gap) || 0;
+        const logoSpace = roundBadgeEl.classList.contains("logo-hidden") ? 0 : naturalLogoWidth + badgeGap;
+        const compactBadgeWidth = Math.min(availableBadgeWidth, badgePadding + logoSpace + textWidth);
+        const compactTextSpace = Math.max(compactBadgeWidth - badgePadding - logoSpace, 0);
+        const textNeedsAvailableSpace = textWidth > compactTextSpace + 1;
+        const badgeTargetWidth = textNeedsAvailableSpace ? availableBadgeWidth : compactBadgeWidth;
+
+        if(availableBadgeWidth > 0){
+          roundBadgeEl.style.maxWidth = `${availableBadgeWidth}px`;
+          roundBadgeEl.style.width = `${badgeTargetWidth}px`;
+        } else {
+          roundBadgeEl.style.maxWidth = "";
+          roundBadgeEl.style.width = "auto";
+        }
       });
     }
 
@@ -1303,20 +3502,68 @@
       fannyBadgeEl.classList.add("show");
     }
 
+    function maybeShowFannyBadge(setIndex, set, shouldAnimateNewestSet){
+      if(!shouldAnimateNewestSet || setIndex !== currentMatch.sets.length - 1 || !set){
+        return;
+      }
+
+      const isFannySet = (set.a === 5 && set.b === 0) || (set.b === 5 && set.a === 0);
+      if(!isFannySet){
+        return;
+      }
+
+      const fannySignature = `${currentMatch.id}:${setIndex}:${set.a}-${set.b}`;
+      if(fannySignature === lastShownFannySetSignature){
+        return;
+      }
+
+      lastShownFannySetSignature = fannySignature;
+      showFannyBadge();
+    }
+
     function showSpecialPointBanner(text){
       specialPointTextEl.innerText = text;
       specialPointBannerEl.classList.remove("show");
       void specialPointBannerEl.offsetWidth;
       specialPointBannerEl.classList.add("show");
+      syncBoardWidth();
     }
 
     function updateSpecialPointBadge(){
+      if(isDrawMatchFinished()){
+        specialPointTextEl.innerText = "MATCH NUL";
+        specialPointBannerEl.classList.remove("show");
+        specialPointBannerEl.classList.add("draw-badge-visible");
+        lastSpecialState = "MATCH NUL";
+        syncBoardWidth();
+        return;
+      }
+
+      if(hasWonCurrentSet(currentMatch.scoreA, currentMatch.scoreB) || hasWonCurrentSet(currentMatch.scoreB, currentMatch.scoreA)){
+        specialPointBannerEl.classList.remove("show");
+        specialPointBannerEl.classList.remove("draw-badge-visible");
+        lastSpecialState = "";
+        syncBoardWidth();
+        return;
+      }
+
+      if(isRelayRaceMode()){
+        specialPointBannerEl.classList.remove("show");
+        specialPointBannerEl.classList.remove("draw-badge-visible");
+        lastSpecialState = "";
+        syncBoardWidth();
+        return;
+      }
+
       let newState = "";
 
-      if(isFinalSet() && currentMatch.scoreA === 7 && currentMatch.scoreB === 7 && !isMatchFinished()){
+      if(isCdfIndivShortMatchMode() && (isMatchPointA() || isMatchPointB())){
+        newState = "BALLE DE MATCH";
+      } else if(isFinalSet() && currentMatch.scoreA === 7 && currentMatch.scoreB === 7 && !isMatchFinished()){
         newState = "BALLE EN OR";
       } else if(
         isFinalSet() &&
+        !isCdfIndivShortMatchMode() &&
         currentMatch.scoreA >= 4 &&
         currentMatch.scoreB >= 4 &&
         !hasWonCurrentSet(currentMatch.scoreA, currentMatch.scoreB) &&
@@ -1336,6 +3583,8 @@
       }
       if(newState === ""){
         specialPointBannerEl.classList.remove("show");
+        specialPointBannerEl.classList.remove("draw-badge-visible");
+        syncBoardWidth();
       }
       lastSpecialState = newState;
     }
@@ -1354,21 +3603,96 @@
       setTimeout(() => element.classList.remove("flash"), 180);
     }
 
+    function clearVictoryAnimation(){
+      if(victoryAnimationTimer){
+        clearTimeout(victoryAnimationTimer);
+        victoryAnimationTimer = null;
+      }
+      victoryAnimationTeam = null;
+      victoryBannerAEl.textContent = "VICTOIRE";
+      victoryBannerBEl.textContent = "VICTOIRE";
+      scoreWrapAEl.classList.remove("victory-active");
+      scoreWrapBEl.classList.remove("victory-active");
+      scoreWrapAEl.classList.remove("ko-active");
+      scoreWrapBEl.classList.remove("ko-active");
+      playerRowAEl.classList.remove("fun-victory");
+      playerRowBEl.classList.remove("fun-victory");
+    }
+
+    function showVictoryAnimation(team){
+      clearVictoryAnimation();
+      victoryAnimationTeam = team;
+      const targetWrap = team === "A" ? scoreWrapAEl : scoreWrapBEl;
+      const targetRow = team === "A" ? playerRowAEl : playerRowBEl;
+      const losingWrap = team === "A" ? scoreWrapBEl : scoreWrapAEl;
+      const losingRow = team === "A" ? playerRowBEl : playerRowAEl;
+      const winningBanner = team === "A" ? victoryBannerAEl : victoryBannerBEl;
+      const losingBanner = team === "A" ? victoryBannerBEl : victoryBannerAEl;
+      winningBanner.textContent = "VICTOIRE";
+      losingBanner.textContent = "KO";
+      targetWrap.classList.remove("victory-active");
+      losingWrap.classList.remove("victory-active");
+      targetWrap.classList.remove("ko-active");
+      losingWrap.classList.remove("ko-active");
+      void targetWrap.offsetWidth;
+      targetRow.classList.add("fun-victory");
+      losingRow.classList.add("fun-victory");
+      targetWrap.classList.add("victory-active");
+      losingWrap.classList.add("ko-active");
+      updateScoreVisibility();
+
+      victoryAnimationTimer = setTimeout(() => {
+        clearVictoryAnimation();
+        updateScoreVisibility();
+      }, 3700);
+    }
+
+    function showShortMatchDrawAnimation(){
+      const animatedEls = [nameAEl, nameBEl, scoreAEl, scoreBEl];
+      animatedEls.forEach((el) => {
+        el.classList.remove("draw-finish");
+        void el.offsetWidth;
+        el.classList.add("draw-finish");
+      });
+
+      setTimeout(() => {
+        animatedEls.forEach((el) => el.classList.remove("draw-finish"));
+      }, 1200);
+    }
+
     function updateScoreVisibility(){
       const scoreEls = document.querySelectorAll(".player-score");
       const playerRows = document.querySelectorAll(".player-row");
       const winner = getWinner();
+      const isDrawFinished = isDrawMatchFinished();
+      const isVictoryAnimating = Boolean(victoryAnimationTeam);
 
-      if(isMatchFinished()){
+      if(isMatchFinished() && !isDrawFinished && !isVictoryAnimating){
         scoreEls.forEach(el => el.classList.add("score-text-hidden"));
         playerRows.forEach(row => row.classList.add("match-finished"));
+        playerRows.forEach(row => row.classList.remove("draw-finished"));
         nameAEl.classList.toggle("winner", winner === "A");
         nameBEl.classList.toggle("winner", winner === "B");
+      } else if(isDrawFinished){
+        scoreEls.forEach(el => el.classList.remove("score-text-hidden"));
+        playerRows.forEach(row => row.classList.remove("match-finished"));
+        playerRows.forEach(row => row.classList.add("draw-finished"));
+        nameAEl.classList.remove("winner");
+        nameBEl.classList.remove("winner");
       } else {
         scoreEls.forEach(el => el.classList.remove("score-text-hidden"));
         playerRows.forEach(row => row.classList.remove("match-finished"));
+        playerRows.forEach(row => row.classList.remove("draw-finished"));
         nameAEl.classList.remove("winner");
         nameBEl.classList.remove("winner");
+        nameAEl.classList.remove("draw-finish");
+        nameBEl.classList.remove("draw-finish");
+        scoreAEl.classList.remove("draw-finish");
+        scoreBEl.classList.remove("draw-finish");
+        if(isMatchFinished()){
+          nameAEl.classList.toggle("winner", winner === "A");
+          nameBEl.classList.toggle("winner", winner === "B");
+        }
       }
     }
 
@@ -1378,7 +3702,7 @@
       const setsWonB = getSetsWonB();
       let displayedSets = currentMatch.sets.length;
 
-      if(setsWonA >= MANCHES_POUR_GAGNER || setsWonB >= MANCHES_POUR_GAGNER){
+      if(!isCdfClubMode() && (setsWonA >= MANCHES_POUR_GAGNER || setsWonB >= MANCHES_POUR_GAGNER)){
         displayedSets = setsWonA + setsWonB;
       }
 
@@ -1418,14 +3742,14 @@
           if(set.a === 5 && set.b === 0){
             cellA.classList.add("fanny-win");
             cellB.classList.add("fanny-lose");
-            if(i === currentMatch.sets.length - 1) showFannyBadge();
           }
 
           if(set.b === 5 && set.a === 0){
             cellB.classList.add("fanny-win");
             cellA.classList.add("fanny-lose");
-            if(i === currentMatch.sets.length - 1) showFannyBadge();
           }
+
+          maybeShowFannyBadge(i, set, shouldAnimateNewestSet);
         }
 
         if(shouldAnimateNewestSet && i === currentMatch.sets.length - 1 && set){
@@ -1459,6 +3783,7 @@
         const parsed = JSON.parse(raw);
         currentMatch = normalizeMatch(parsed);
         lastAnimatedSetCount = currentMatch.sets.length;
+        lastShownFannySetSignature = "";
       } catch(error){
         console.error("Impossible de restaurer le match en cours", error);
       }
@@ -1556,8 +3881,18 @@
     function finishMatch(){
       currentMatch.status = "finished";
       currentMatch.finishedAt = new Date().toISOString();
+      renderTexts();
       updateHistory();
       updateScoreVisibility();
+      if(isShootoutMode()){
+        const winner = getWinner();
+        if(winner){
+          showVictoryAnimation(winner);
+        }
+      }
+      if(isDrawMatchFinished()){
+        showShortMatchDrawAnimation();
+      }
       persistCurrentMatch();
     }
 
@@ -1666,6 +4001,8 @@
       if(currentMatch.goals.length === 0) return;
       currentMatch.goals.pop();
       rebuildFromGoals();
+      lastAnimatedSetCount = currentMatch.sets.length;
+      lastShownFannySetSignature = "";
       updateScores();
       updateHistory();
       persistCurrentMatch();
@@ -1806,8 +4143,10 @@
 
         if(aWonSet || bWonSet){
           completedSetsCount += 1;
-          scoreA = 0;
-          scoreB = 0;
+          if(!isCdfClubMode()){
+            scoreA = 0;
+            scoreB = 0;
+          }
           engagementTeam = "A";
           currentStreakTeam = null;
           currentStreakCount = 0;
@@ -1873,6 +4212,7 @@
         roundLabel: currentMatch.roundLabel,
         teamA: currentMatch.teamA,
         teamB: currentMatch.teamB,
+        headToHead: currentMatch.headToHead,
         scoreA: currentMatch.scoreA,
         scoreB: currentMatch.scoreB,
         sets: currentMatch.sets,
@@ -1897,25 +4237,42 @@
     }
 
     async function saveMatchResult(){
+      if(isSavingMatchResult){
+        setStatus("Sauvegarde déjà en cours...");
+        return;
+      }
+
       if(!isMatchFinished()){
         setStatus("Le match n'est pas terminé. Termine le match avant la sauvegarde.");
         return;
       }
 
+      isSavingMatchResult = true;
+      saveMatchBtn.disabled = true;
       const payload = buildMatchPayload();
       saveMatchLocally(payload);
 
       try{
-        await saveMatchToFirebase(payload);
+        const firestorePaths = await saveMatchToFirebase(payload);
         currentMatch.savedAt = payload.savedAt;
         persistCurrentMatch();
-        setStatus(`Résultat sauvegardé dans Firestore. ${payload.goalsCount} but(s) enregistrés.`);
+        const playerPathsPreview = firestorePaths.playerMatchPaths.slice(0, 2).join(" | ");
+        const playerLinksMessage = firestorePaths.playerLinksSaved
+          ? `Joueurs : ${playerPathsPreview}`
+          : `Match OK, liaison joueurs refusée par les règles Firestore : ${firestorePaths.playerLinksError}`;
+        lastSaveStatusAt = Date.now();
+        setStatus(`Résultat sauvegardé. Match : ${firestorePaths.matchPath}. ${playerLinksMessage}`);
         console.log("Payload envoyé à Firestore :", payload);
+        console.log("Chemins Firestore :", firestorePaths);
       } catch(error){
         console.error(error);
         currentMatch.savedAt = payload.savedAt;
         persistCurrentMatch();
+        lastSaveStatusAt = Date.now();
         setStatus(`Sauvegarde locale OK mais Firebase a échoué : ${error.message}`);
+      } finally {
+        isSavingMatchResult = false;
+        saveMatchBtn.disabled = false;
       }
     }
 
@@ -1966,7 +4323,317 @@
       persistCurrentMatch();
     }
 
+    function registerTimeout(team){
+      if(isMatchFinished()){
+        setStatus("Le match est termine, impossible de prendre un temps mort.");
+        return;
+      }
+
+      if(team !== "A" && team !== "B"){
+        setStatus("Choisis A ou B pour attribuer le temps mort.");
+        return;
+      }
+
+      const playerName = getCurrentDisplayName(team);
+      const timeoutLimit = getTimeoutLimit();
+
+      if(currentMatch.timeouts[team] >= timeoutLimit){
+        setStatus(`${playerName} a deja utilise son quota de ${timeoutLimit} temps mort${timeoutLimit > 1 ? "s" : ""}.`);
+        return;
+      }
+
+      currentMatch.timeouts[team] += 1;
+      updateTimeoutDisplay();
+      updateMetaPanel();
+      persistCurrentMatch();
+      setStatus(`Temps mort pris par ${playerName} (${currentMatch.timeouts[team]}/${timeoutLimit} sur ${isCdfClubMode() ? "ce relais" : "cette manche"}).`);
+    }
+
+    function recordGoal(team){
+      syncMatchMetaFromInputs();
+
+      currentMatch.goals.push({
+        id: createId("goal"),
+        sequence: currentMatch.goals.length + 1,
+        setNumber: currentMatch.sets.length + 1,
+        team,
+        scorer: getCurrentDisplayName(team),
+        scoreAAfter: currentMatch.scoreA,
+        scoreBAfter: currentMatch.scoreB,
+        type: "GOAL",
+        createdAt: new Date().toISOString()
+      });
+
+      persistCurrentMatch();
+    }
+
+    function resetScoresOnly(){
+      if(!isRelayRaceMode()){
+        currentMatch.scoreA = 0;
+        currentMatch.scoreB = 0;
+      }
+      resetTimeouts();
+      renderTexts();
+      updateScores();
+      lastSpecialState = "";
+      updateCdfClubPanel();
+      persistCurrentMatch();
+    }
+
+    function recordCurrentSet(){
+      const maxSets = isRelayRaceMode() ? getRelayTargets().length : MANCHES_MAX;
+      if(currentMatch.sets.length >= maxSets) return;
+
+      currentMatch.sets.push({
+        a: currentMatch.scoreA,
+        b: currentMatch.scoreB,
+        setNumber: currentMatch.sets.length + 1,
+        completedAt: new Date().toISOString()
+      });
+
+      updateHistory();
+      persistCurrentMatch();
+    }
+
+    function addGoalA(){
+      if(isMatchFinished()) return;
+      if(currentMatch.scoreA >= getCurrentSetTarget()) return;
+      if(isDrawMatchFinished()) return;
+
+      currentMatch.scoreA++;
+      recordGoal("A");
+      updateScores();
+      flashScore(scoreAEl);
+
+      if(isDrawMatchFinished()){
+        finishMatch();
+        return;
+      }
+
+      if(hasWonCurrentSet(currentMatch.scoreA, currentMatch.scoreB)){
+        winSetA();
+      }
+    }
+
+    function addGoalB(){
+      if(isMatchFinished()) return;
+      if(currentMatch.scoreB >= getCurrentSetTarget()) return;
+      if(isDrawMatchFinished()) return;
+
+      currentMatch.scoreB++;
+      recordGoal("B");
+      updateScores();
+      flashScore(scoreBEl);
+
+      if(isDrawMatchFinished()){
+        finishMatch();
+        return;
+      }
+
+      if(hasWonCurrentSet(currentMatch.scoreB, currentMatch.scoreA)){
+        winSetB();
+      }
+    }
+
+    function rebuildFromGoals(){
+      currentMatch.scoreA = 0;
+      currentMatch.scoreB = 0;
+      currentMatch.sets = [];
+      resetTimeouts();
+      currentMatch.status = "in_progress";
+      currentMatch.finishedAt = null;
+
+      const goalsCopy = [...currentMatch.goals].sort((a, b) => a.sequence - b.sequence);
+      currentMatch.goals = [];
+
+      for(const goal of goalsCopy){
+        if(goal.team === "A"){
+          currentMatch.scoreA++;
+        } else {
+          currentMatch.scoreB++;
+        }
+
+        currentMatch.goals.push({
+          ...goal,
+          sequence: currentMatch.goals.length + 1,
+          setNumber: currentMatch.sets.length + 1,
+          scoreAAfter: currentMatch.scoreA,
+          scoreBAfter: currentMatch.scoreB
+        });
+
+        if(hasWonCurrentSet(currentMatch.scoreA, currentMatch.scoreB)){
+          currentMatch.sets.push({
+            a: currentMatch.scoreA,
+            b: currentMatch.scoreB,
+            setNumber: currentMatch.sets.length + 1,
+            completedAt: goal.createdAt || new Date().toISOString()
+          });
+
+          if(isRelayRaceMode() ? isMatchFinished() : (getSetsWonA() >= getSetsNeededToWinMatch() || getSetsWonB() >= getSetsNeededToWinMatch())){
+            currentMatch.status = "finished";
+            currentMatch.finishedAt = goal.createdAt || new Date().toISOString();
+            break;
+          }
+
+          if(!isRelayRaceMode()){
+            currentMatch.scoreA = 0;
+            currentMatch.scoreB = 0;
+          }
+          resetTimeouts();
+        }
+      }
+    }
+
+    function resetMatch(){
+      const selectedTournament = tournamentsCatalog.find((tournament) => tournament.id === tournamentNameInput.value);
+      const tournamentName = selectedTournament?.name || currentMatch.tournamentName;
+      const categoryName = categoryNameInput.value.trim() || currentMatch.categoryName;
+      const roundLabel = roundLabelInput.value.trim() || currentMatch.roundLabel;
+      const playerA = playerAInput.value.trim() || currentMatch.teamA.name;
+      const playerB = playerBInput.value.trim() || currentMatch.teamB.name;
+      const headToHead = {
+        confrontations: toNonNegativeInteger(confrontationCountInput.value),
+        victoryA: toNonNegativeInteger(victoryPlayerAInput.value),
+        victoryB: toNonNegativeInteger(victoryPlayerBInput.value)
+      };
+      const relayPlayers = {
+        A: [...(currentMatch.relayPlayers?.A || createEmptyMatch().relayPlayers.A)],
+        B: [...(currentMatch.relayPlayers?.B || createEmptyMatch().relayPlayers.B)]
+      };
+
+      currentMatch = createEmptyMatch();
+      lastAnimatedSetCount = 0;
+      lastShownFannySetSignature = "";
+      currentMatch.tournamentName = tournamentName;
+      currentMatch.tournamentId = selectedTournament?.id || slugify(tournamentName);
+      currentMatch.categoryName = categoryName;
+      currentMatch.categoryId = slugify(categoryName);
+      currentMatch.roundLabel = roundLabel;
+      currentMatch.teamA.name = playerA;
+      currentMatch.teamA.players = [playerA];
+      currentMatch.teamB.name = playerB;
+      currentMatch.teamB.players = [playerB];
+      currentMatch.headToHead = headToHead;
+      currentMatch.relayPlayers = relayPlayers;
+
+      syncInputsFromMatch();
+      renderAll();
+      persistCurrentMatch();
+      setStatus("Nouveau match pret.");
+    }
+
+    function getWinner(){
+      if(isRelayRaceMode()){
+        if(isRelayRaceDraw()){
+          return null;
+        }
+        if(currentMatch.scoreA > currentMatch.scoreB) return "A";
+        if(currentMatch.scoreB > currentMatch.scoreA) return "B";
+        return null;
+      }
+      if(isDrawMatchFinished()){
+        return null;
+      }
+      if(getSetsWonA() > getSetsWonB()) return "A";
+      if(getSetsWonB() > getSetsWonA()) return "B";
+      return null;
+    }
+
+    function hasWonCurrentSetForState(playerScore, opponentScore, completedSetsCount){
+      if(isRelayRaceMode()){
+        if(isGrandeFinaleRelayMode() && playerScore === 29 && opponentScore === 29){
+          return false;
+        }
+        const target = getRelayTargets()[Math.min(completedSetsCount, getRelayTargets().length - 1)];
+        return playerScore >= target;
+      }
+      if(isShootoutMode()){
+        return playerScore >= 10;
+      }
+      if(isCdfIndivShortMatchMode()){
+        if(playerScore === 7 && opponentScore === 7){
+          return false;
+        }
+        return playerScore >= 8;
+      }
+
+      const isDecidingSet = completedSetsCount === getDecidingSetCompletedCount();
+
+      if(!isDecidingSet){
+        return playerScore >= SCORE_NORMAL;
+      }
+
+      if(playerScore >= 5 && opponentScore <= 3){
+        return true;
+      }
+      if(playerScore === 8 && opponentScore === 7){
+        return true;
+      }
+      if(playerScore >= 6 && (playerScore - opponentScore) >= 2){
+        return true;
+      }
+      return false;
+    }
+
+    function buildMatchPayload(){
+      syncMatchMetaFromInputs();
+      return {
+        id: currentMatch.id,
+        tournamentId: currentMatch.tournamentId,
+        tournamentName: currentMatch.tournamentName,
+        categoryId: currentMatch.categoryId,
+        categoryName: currentMatch.categoryName,
+        roundLabel: currentMatch.roundLabel,
+        teamA: currentMatch.teamA,
+        teamB: currentMatch.teamB,
+        headToHead: currentMatch.headToHead,
+        relayPlayers: currentMatch.relayPlayers,
+        scoreA: currentMatch.scoreA,
+        scoreB: currentMatch.scoreB,
+        sets: currentMatch.sets,
+        goals: currentMatch.goals,
+        goalsCount: currentMatch.goals.length,
+        timeouts: currentMatch.timeouts,
+        setsWonA: getSetsWonA(),
+        setsWonB: getSetsWonB(),
+        winner: getWinner(),
+        goalDifference: Math.abs(getSetsWonA() - getSetsWonB()),
+        status: isMatchFinished() ? "finished" : currentMatch.status,
+        startedAt: currentMatch.startedAt,
+        finishedAt: currentMatch.finishedAt,
+        savedAt: new Date().toISOString()
+      };
+    }
+
+    function updateMetaPanel(){
+      const timeoutLimit = getTimeoutLimit();
+      const scoreLabel = isRelayRaceMode()
+        ? `${currentMatch.sets.length}/${getRelayTargets().length} relais valides`
+        : `${getSetsWonA()} - ${getSetsWonB()}`;
+
+      matchMetaEl.innerHTML = `
+        <div><strong>${isRelayRaceMode() ? "Relais" : "Sets"} :</strong> ${scoreLabel}</div>
+        <div><strong>Buts enregistres :</strong> ${currentMatch.goals.length}</div>
+        <div><strong>${isRelayRaceMode() ? "Temps morts relais" : "Temps morts manche"} :</strong> ${getCurrentDisplayName("A")} ${currentMatch.timeouts.A}/${timeoutLimit} - ${getCurrentDisplayName("B")} ${currentMatch.timeouts.B}/${timeoutLimit}</div>
+        <div><strong>Statut :</strong> ${isMatchFinished() ? "termine" : "en cours"}</div>
+        <div><strong>Match ID :</strong> ${currentMatch.id}</div>
+      `;
+    }
+
+    function renderTexts(){
+      syncMatchMetaFromInputs();
+      nameAEl.innerText = getBoardDisplayName("A");
+      nameBEl.innerText = getBoardDisplayName("B");
+      roundBadgeTextEl.innerText = `${currentMatch.tournamentName} - ${currentMatch.categoryName} - ${currentMatch.roundLabel}`;
+      updateNameColumnWidth();
+      updateCdfClubPanel();
+      renderMatchRecap();
+      syncBoardWidth();
+      persistCurrentMatch();
+    }
+
     function renderAll(){
+      clearVictoryAnimation();
       syncInputsFromMatch();
       renderTexts();
       updateScores();
@@ -1982,8 +4649,142 @@
 
     window.addEventListener("resize", syncBoardWidth);
 
-    [tournamentNameInput, categoryNameInput, roundLabelInput, playerAInput, playerBInput].forEach(input => {
-      input.addEventListener("input", renderTexts);
+    specialPointBannerEl.addEventListener("animationend", () => {
+      specialPointBannerEl.classList.remove("show");
+      if(!specialPointBannerEl.classList.contains("draw-badge-visible")){
+        specialPointTextEl.innerText = "";
+      }
+      syncBoardWidth();
+    });
+
+    categoryNameInput.addEventListener("change", () => {
+      renderTexts();
+      currentMatch.categoryName = categoryNameInput.value.trim() || currentMatch.categoryName;
+      currentMatch.categoryId = slugify(currentMatch.categoryName);
+      loadPlayersBaseForCategory(currentMatch.tournamentId, currentMatch.categoryId);
+    });
+    roundLabelInput.addEventListener("change", renderTexts);
+    confrontationCountInput.addEventListener("input", renderTexts);
+    victoryPlayerAInput.addEventListener("input", renderTexts);
+    victoryPlayerBInput.addEventListener("input", renderTexts);
+    document.addEventListener("keydown", handleLineListTextareaKeydown, true);
+    document.addEventListener("keypress", handleLineListTextareaKeydown, true);
+    relayPlayersAInput.addEventListener("input", handleRelayPlayersInput);
+    relayPlayersBInput.addEventListener("input", handleRelayPlayersInput);
+
+    tournamentNameInput.addEventListener("input", () => {
+      renderTexts();
+      renderSuggestions({
+        inputEl: tournamentNameInput,
+        boxEl: tournamentSuggestionsEl,
+        items: getTournamentCatalogItems(),
+        query: tournamentNameInput.value,
+        emptyText: "Aucun tournoi trouvÃ©",
+        onSelect: (item) => setTournamentSelection(item.value)
+      });
+    });
+
+    tournamentNameInput.addEventListener("focus", () => {
+      renderSuggestions({
+        inputEl: tournamentNameInput,
+        boxEl: tournamentSuggestionsEl,
+        items: getTournamentCatalogItems(),
+        query: tournamentNameInput.value,
+        emptyText: "Aucun tournoi trouvÃ©",
+        onSelect: (item) => setTournamentSelection(item.value)
+      });
+    });
+
+    tournamentNameInput.addEventListener("blur", () => {
+      setTimeout(() => hideSuggestions(tournamentSuggestionsEl), 120);
+      const selectedTournament = tournamentsCatalog.find((tournament) => tournament.id === tournamentNameInput.value);
+      currentMatch.tournamentName = selectedTournament?.name || currentMatch.tournamentName;
+      currentMatch.tournamentId = selectedTournament?.id || slugify(currentMatch.tournamentName);
+      loadPlayersBaseForCategory(currentMatch.tournamentId, currentMatch.categoryId);
+    });
+
+    tournamentNameInput.addEventListener("change", () => {
+      const selectedTournament = tournamentsCatalog.find((tournament) => tournament.id === tournamentNameInput.value);
+      if(selectedTournament){
+        setTournamentSelection(selectedTournament);
+      }
+    });
+
+    playerAInput.addEventListener("input", () => {
+      handleContestantSearchInput("A", playerAInput, playerASuggestionsEl);
+    });
+
+    playerAInput.addEventListener("focus", () => {
+      renderSuggestions({
+        inputEl: playerAInput,
+        boxEl: playerASuggestionsEl,
+        items: getContestantCatalogItems(),
+        query: playerAInput.value,
+        emptyText: "Aucun joueur trouvÃ©",
+        onSelect: (item) => selectContestant("A", item.value)
+      });
+    });
+
+    playerAInput.addEventListener("blur", () => {
+      setTimeout(() => hideSuggestions(playerASuggestionsEl), 120);
+      if(usesTeamCatalogForContestants()){
+        const selectedTeam = getTeamByName(playerAInput.value);
+        if(selectedTeam) applyTeamToSide("A", selectedTeam);
+      }
+    });
+
+    playerBInput.addEventListener("input", () => {
+      handleContestantSearchInput("B", playerBInput, playerBSuggestionsEl);
+    });
+
+    playerBInput.addEventListener("focus", () => {
+      renderSuggestions({
+        inputEl: playerBInput,
+        boxEl: playerBSuggestionsEl,
+        items: getContestantCatalogItems(),
+        query: playerBInput.value,
+        emptyText: "Aucun joueur trouvÃ©",
+        onSelect: (item) => selectContestant("B", item.value)
+      });
+    });
+
+    playerBInput.addEventListener("blur", () => {
+      setTimeout(() => hideSuggestions(playerBSuggestionsEl), 120);
+      if(usesTeamCatalogForContestants()){
+        const selectedTeam = getTeamByName(playerBInput.value);
+        if(selectedTeam) applyTeamToSide("B", selectedTeam);
+      }
+    });
+
+    teamNameInput.addEventListener("input", () => {
+      renderSuggestions({
+        inputEl: teamNameInput,
+        boxEl: teamSuggestionsEl,
+        items: getTeamCatalogItems(),
+        query: teamNameInput.value,
+        emptyText: "Aucune equipe trouvee",
+        onSelect: (item) => fillTeamEditor(item.value)
+      });
+    });
+
+    teamNameInput.addEventListener("focus", () => {
+      renderSuggestions({
+        inputEl: teamNameInput,
+        boxEl: teamSuggestionsEl,
+        items: getTeamCatalogItems(),
+        query: teamNameInput.value,
+        emptyText: "Aucune equipe trouvee",
+        onSelect: (item) => fillTeamEditor(item.value)
+      });
+    });
+
+    teamNameInput.addEventListener("blur", () => {
+      setTimeout(() => hideSuggestions(teamSuggestionsEl), 120);
+    });
+
+    teamSelectInput.addEventListener("change", () => {
+      const selectedTeam = currentCategoryTeams.find((team) => team.id === teamSelectInput.value);
+      fillTeamEditor(selectedTeam);
     });
 
     saveMatchBtn.addEventListener("click", saveMatchResult);
@@ -1998,6 +4799,19 @@
     });
     initFirebaseBtn.addEventListener("click", initFirebase);
     testFirestoreBtn.addEventListener("click", testFirestoreConnection);
+    saveTeamBtn.addEventListener("click", saveTeamForCategory);
+    reloadTeamsBtn.addEventListener("click", () => loadTeamsForCategory(currentMatch.tournamentId, currentMatch.categoryId));
+    savePlayersBaseBtn.addEventListener("click", savePlayersBaseForCategory);
+    applyRankingsBtn.addEventListener("click", applyRankingsFromJoueurCdf);
+    applyPhotosBtn.addEventListener("click", applyPhotosFromFileNames);
+    reloadPlayersBaseBtn.addEventListener("click", async () => {
+      await loadTournamentsCatalog();
+      refreshTournamentOptions();
+      await loadPlayersBaseForCategory(
+        tournamentNameInput.value || currentMatch.tournamentId,
+        slugify(categoryNameInput.value.trim() || currentMatch.categoryName)
+      );
+    });
     copyMobileUrlBtn.addEventListener("click", async () => {
       if(!mobileUrlInput.value) return;
 
@@ -2021,6 +4835,19 @@
       firestoreFns = null;
       lastLiveMatchSignature = "";
       setFirebaseStatus("Project ID mis à jour. Réinitialise Firebase pour reconnecter.");
+    });
+
+    photosBaseUrlInput.addEventListener("input", () => {
+      localStorage.setItem(LOCAL_PHOTOS_BASE_URL_KEY, getPhotosBaseUrl());
+    });
+
+    document.addEventListener("click", (event) => {
+      if(!event.target.closest(".field")){
+        hideSuggestions(tournamentSuggestionsEl);
+        hideSuggestions(playerASuggestionsEl);
+        hideSuggestions(playerBSuggestionsEl);
+        hideSuggestions(teamSuggestionsEl);
+      }
     });
 
     document.addEventListener("keydown", function(e){
@@ -2080,6 +4907,7 @@
     });
 
     firebaseProjectIdInput.value = localStorage.getItem(LOCAL_FIREBASE_PROJECT_ID_KEY) || "donnees-scoreboard";
+    photosBaseUrlInput.value = localStorage.getItem(LOCAL_PHOTOS_BASE_URL_KEY) || "http://localhost:8000/PHOTOS%20JOUEURS/";
 
     restoreCurrentMatch();
     renderAll();
